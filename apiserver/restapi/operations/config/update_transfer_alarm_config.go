@@ -7,21 +7,22 @@ package config
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateTransferAlarmConfigHandlerFunc turns a function with the right signature into a update transfer alarm config handler
-type UpdateTransferAlarmConfigHandlerFunc func(UpdateTransferAlarmConfigParams, interface{}) middleware.Responder
+type UpdateTransferAlarmConfigHandlerFunc func(UpdateTransferAlarmConfigParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateTransferAlarmConfigHandlerFunc) Handle(params UpdateTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+func (fn UpdateTransferAlarmConfigHandlerFunc) Handle(params UpdateTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateTransferAlarmConfigHandler interface for that can handle valid update transfer alarm config params
 type UpdateTransferAlarmConfigHandler interface {
-	Handle(UpdateTransferAlarmConfigParams, interface{}) middleware.Responder
+	Handle(UpdateTransferAlarmConfigParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateTransferAlarmConfig creates a new http.Handler for the update transfer alarm config operation
@@ -56,9 +57,9 @@ func (o *UpdateTransferAlarmConfig) ServeHTTP(rw http.ResponseWriter, r *http.Re
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

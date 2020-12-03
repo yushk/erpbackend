@@ -31,6 +31,7 @@ import (
 	"swagger/apiserver/restapi/operations/system"
 	"swagger/apiserver/restapi/operations/template"
 	"swagger/apiserver/restapi/operations/user"
+	v1 "swagger/apiserver/v1"
 )
 
 // NewMaterialAPI creates a new Material instance
@@ -57,201 +58,207 @@ func NewMaterialAPI(spec *loads.Document) *MaterialAPI {
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
 
-		AnalysisAggregateHandler: analysis.AggregateHandlerFunc(func(params analysis.AggregateParams, principal interface{}) middleware.Responder {
+		AnalysisAggregateHandler: analysis.AggregateHandlerFunc(func(params analysis.AggregateParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation analysis.Aggregate has not yet been implemented")
 		}),
-		UserChangeCurrentUserPasswordHandler: user.ChangeCurrentUserPasswordHandlerFunc(func(params user.ChangeCurrentUserPasswordParams, principal interface{}) middleware.Responder {
+		UserChangeCurrentUserPasswordHandler: user.ChangeCurrentUserPasswordHandlerFunc(func(params user.ChangeCurrentUserPasswordParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.ChangeCurrentUserPassword has not yet been implemented")
 		}),
-		UserChangeUserPasswordHandler: user.ChangeUserPasswordHandlerFunc(func(params user.ChangeUserPasswordParams, principal interface{}) middleware.Responder {
+		UserChangeUserPasswordHandler: user.ChangeUserPasswordHandlerFunc(func(params user.ChangeUserPasswordParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.ChangeUserPassword has not yet been implemented")
 		}),
-		DeviceCheckBasicsDevicePhaseHandler: device.CheckBasicsDevicePhaseHandlerFunc(func(params device.CheckBasicsDevicePhaseParams, principal interface{}) middleware.Responder {
+		DeviceCheckBasicsDevicePhaseHandler: device.CheckBasicsDevicePhaseHandlerFunc(func(params device.CheckBasicsDevicePhaseParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.CheckBasicsDevicePhase has not yet been implemented")
 		}),
 		SystemConfigHandler: system.ConfigHandlerFunc(func(params system.ConfigParams) middleware.Responder {
 			return middleware.NotImplemented("operation system.Config has not yet been implemented")
 		}),
-		DgaConfirmEarlyAlarmHandler: dga.ConfirmEarlyAlarmHandlerFunc(func(params dga.ConfirmEarlyAlarmParams, principal interface{}) middleware.Responder {
+		DgaConfirmEarlyAlarmHandler: dga.ConfirmEarlyAlarmHandlerFunc(func(params dga.ConfirmEarlyAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.ConfirmEarlyAlarm has not yet been implemented")
 		}),
-		AlarmConfirmIntelligenceAlarmHandler: alarm.ConfirmIntelligenceAlarmHandlerFunc(func(params alarm.ConfirmIntelligenceAlarmParams, principal interface{}) middleware.Responder {
+		AlarmConfirmIntelligenceAlarmHandler: alarm.ConfirmIntelligenceAlarmHandlerFunc(func(params alarm.ConfirmIntelligenceAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ConfirmIntelligenceAlarm has not yet been implemented")
 		}),
-		AlarmConfirmLimitAlarmHandler: alarm.ConfirmLimitAlarmHandlerFunc(func(params alarm.ConfirmLimitAlarmParams, principal interface{}) middleware.Responder {
+		AlarmConfirmLimitAlarmHandler: alarm.ConfirmLimitAlarmHandlerFunc(func(params alarm.ConfirmLimitAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ConfirmLimitAlarm has not yet been implemented")
 		}),
-		AlarmConfirmTransferAlarmHandler: alarm.ConfirmTransferAlarmHandlerFunc(func(params alarm.ConfirmTransferAlarmParams, principal interface{}) middleware.Responder {
+		AlarmConfirmTransferAlarmHandler: alarm.ConfirmTransferAlarmHandlerFunc(func(params alarm.ConfirmTransferAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ConfirmTransferAlarm has not yet been implemented")
 		}),
-		ConfigControlAlarmTaskHandler: config.ControlAlarmTaskHandlerFunc(func(params config.ControlAlarmTaskParams, principal interface{}) middleware.Responder {
+		ConfigControlAlarmTaskHandler: config.ControlAlarmTaskHandlerFunc(func(params config.ControlAlarmTaskParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.ControlAlarmTask has not yet been implemented")
 		}),
-		ConfigCreateCleaningConfigsHandler: config.CreateCleaningConfigsHandlerFunc(func(params config.CreateCleaningConfigsParams, principal interface{}) middleware.Responder {
+		ConfigCreateCleaningConfigsHandler: config.CreateCleaningConfigsHandlerFunc(func(params config.CreateCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.CreateCleaningConfigs has not yet been implemented")
 		}),
-		DeviceCreateDeviceHandler: device.CreateDeviceHandlerFunc(func(params device.CreateDeviceParams, principal interface{}) middleware.Responder {
+		DeviceCreateDeviceHandler: device.CreateDeviceHandlerFunc(func(params device.CreateDeviceParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.CreateDevice has not yet been implemented")
 		}),
-		UserCreateUserHandler: user.CreateUserHandlerFunc(func(params user.CreateUserParams, principal interface{}) middleware.Responder {
+		UserCreateUserHandler: user.CreateUserHandlerFunc(func(params user.CreateUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.CreateUser has not yet been implemented")
 		}),
-		ConfigDeleteCleaningConfigsHandler: config.DeleteCleaningConfigsHandlerFunc(func(params config.DeleteCleaningConfigsParams, principal interface{}) middleware.Responder {
+		ConfigDeleteCleaningConfigsHandler: config.DeleteCleaningConfigsHandlerFunc(func(params config.DeleteCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.DeleteCleaningConfigs has not yet been implemented")
 		}),
-		DeviceDeleteDeviceHandler: device.DeleteDeviceHandlerFunc(func(params device.DeleteDeviceParams, principal interface{}) middleware.Responder {
+		DeviceDeleteDeviceHandler: device.DeleteDeviceHandlerFunc(func(params device.DeleteDeviceParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.DeleteDevice has not yet been implemented")
 		}),
-		UserDeleteUserHandler: user.DeleteUserHandlerFunc(func(params user.DeleteUserParams, principal interface{}) middleware.Responder {
+		UserDeleteUserHandler: user.DeleteUserHandlerFunc(func(params user.DeleteUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.DeleteUser has not yet been implemented")
 		}),
 		FileDownloadFileHandler: file.DownloadFileHandlerFunc(func(params file.DownloadFileParams) middleware.Responder {
 			return middleware.NotImplemented("operation file.DownloadFile has not yet been implemented")
 		}),
-		ConfigGetAlarmConfigsHandler: config.GetAlarmConfigsHandlerFunc(func(params config.GetAlarmConfigsParams, principal interface{}) middleware.Responder {
+		ConfigGetAlarmConfigsHandler: config.GetAlarmConfigsHandlerFunc(func(params config.GetAlarmConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.GetAlarmConfigs has not yet been implemented")
 		}),
-		DeviceGetBasicsDevicesHandler: device.GetBasicsDevicesHandlerFunc(func(params device.GetBasicsDevicesParams, principal interface{}) middleware.Responder {
+		DeviceGetBasicsDevicesHandler: device.GetBasicsDevicesHandlerFunc(func(params device.GetBasicsDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.GetBasicsDevices has not yet been implemented")
 		}),
-		ConfigGetCleaningConfigsHandler: config.GetCleaningConfigsHandlerFunc(func(params config.GetCleaningConfigsParams, principal interface{}) middleware.Responder {
+		ConfigGetCleaningConfigsHandler: config.GetCleaningConfigsHandlerFunc(func(params config.GetCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.GetCleaningConfigs has not yet been implemented")
 		}),
-		AlarmGetDeviceAlarmsHandler: alarm.GetDeviceAlarmsHandlerFunc(func(params alarm.GetDeviceAlarmsParams, principal interface{}) middleware.Responder {
+		AlarmGetDeviceAlarmsHandler: alarm.GetDeviceAlarmsHandlerFunc(func(params alarm.GetDeviceAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetDeviceAlarms has not yet been implemented")
 		}),
-		DataGetDeviceChartsHandler: data.GetDeviceChartsHandlerFunc(func(params data.GetDeviceChartsParams, principal interface{}) middleware.Responder {
+		DataGetDeviceChartsHandler: data.GetDeviceChartsHandlerFunc(func(params data.GetDeviceChartsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetDeviceCharts has not yet been implemented")
 		}),
-		TemplateGetDeviceFieldInfosHandler: template.GetDeviceFieldInfosHandlerFunc(func(params template.GetDeviceFieldInfosParams, principal interface{}) middleware.Responder {
+		TemplateGetDeviceFieldInfosHandler: template.GetDeviceFieldInfosHandlerFunc(func(params template.GetDeviceFieldInfosParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.GetDeviceFieldInfos has not yet been implemented")
 		}),
-		TemplateGetDeviceTemplateInfosHandler: template.GetDeviceTemplateInfosHandlerFunc(func(params template.GetDeviceTemplateInfosParams, principal interface{}) middleware.Responder {
+		TemplateGetDeviceTemplateInfosHandler: template.GetDeviceTemplateInfosHandlerFunc(func(params template.GetDeviceTemplateInfosParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.GetDeviceTemplateInfos has not yet been implemented")
 		}),
-		DataGetDeviceValuesHandler: data.GetDeviceValuesHandlerFunc(func(params data.GetDeviceValuesParams, principal interface{}) middleware.Responder {
+		DataGetDeviceValuesHandler: data.GetDeviceValuesHandlerFunc(func(params data.GetDeviceValuesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetDeviceValues has not yet been implemented")
 		}),
-		DeviceGetDevicesHandler: device.GetDevicesHandlerFunc(func(params device.GetDevicesParams, principal interface{}) middleware.Responder {
+		DeviceGetDevicesHandler: device.GetDevicesHandlerFunc(func(params device.GetDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.GetDevices has not yet been implemented")
 		}),
-		DgaGetEarlyAlarmConfigHandler: dga.GetEarlyAlarmConfigHandlerFunc(func(params dga.GetEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+		DgaGetEarlyAlarmConfigHandler: dga.GetEarlyAlarmConfigHandlerFunc(func(params dga.GetEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.GetEarlyAlarmConfig has not yet been implemented")
 		}),
-		DgaGetEarlyAlarmsHandler: dga.GetEarlyAlarmsHandlerFunc(func(params dga.GetEarlyAlarmsParams, principal interface{}) middleware.Responder {
+		DgaGetEarlyAlarmsHandler: dga.GetEarlyAlarmsHandlerFunc(func(params dga.GetEarlyAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.GetEarlyAlarms has not yet been implemented")
 		}),
-		DgaGetEarlyHistoryAlarmsHandler: dga.GetEarlyHistoryAlarmsHandlerFunc(func(params dga.GetEarlyHistoryAlarmsParams, principal interface{}) middleware.Responder {
+		DgaGetEarlyHistoryAlarmsHandler: dga.GetEarlyHistoryAlarmsHandlerFunc(func(params dga.GetEarlyHistoryAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.GetEarlyHistoryAlarms has not yet been implemented")
 		}),
-		AlarmGetHistoryLimitAlarmsHandler: alarm.GetHistoryLimitAlarmsHandlerFunc(func(params alarm.GetHistoryLimitAlarmsParams, principal interface{}) middleware.Responder {
+		AlarmGetHistoryLimitAlarmsHandler: alarm.GetHistoryLimitAlarmsHandlerFunc(func(params alarm.GetHistoryLimitAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetHistoryLimitAlarms has not yet been implemented")
 		}),
-		AlarmGetHistoryTransferAlarmsHandler: alarm.GetHistoryTransferAlarmsHandlerFunc(func(params alarm.GetHistoryTransferAlarmsParams, principal interface{}) middleware.Responder {
+		AlarmGetHistoryTransferAlarmsHandler: alarm.GetHistoryTransferAlarmsHandlerFunc(func(params alarm.GetHistoryTransferAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetHistoryTransferAlarms has not yet been implemented")
 		}),
-		AlarmGetIntelligenceAlarmsHandler: alarm.GetIntelligenceAlarmsHandlerFunc(func(params alarm.GetIntelligenceAlarmsParams, principal interface{}) middleware.Responder {
+		AlarmGetIntelligenceAlarmsHandler: alarm.GetIntelligenceAlarmsHandlerFunc(func(params alarm.GetIntelligenceAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetIntelligenceAlarms has not yet been implemented")
 		}),
-		AlarmGetLimitAlarmConfigHandler: alarm.GetLimitAlarmConfigHandlerFunc(func(params alarm.GetLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+		AlarmGetLimitAlarmConfigHandler: alarm.GetLimitAlarmConfigHandlerFunc(func(params alarm.GetLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetLimitAlarmConfig has not yet been implemented")
 		}),
-		AlarmGetLimitAlarmsHandler: alarm.GetLimitAlarmsHandlerFunc(func(params alarm.GetLimitAlarmsParams, principal interface{}) middleware.Responder {
+		AlarmGetLimitAlarmsHandler: alarm.GetLimitAlarmsHandlerFunc(func(params alarm.GetLimitAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetLimitAlarms has not yet been implemented")
 		}),
-		LogrGetLogsHandler: logr.GetLogsHandlerFunc(func(params logr.GetLogsParams, principal interface{}) middleware.Responder {
+		LogrGetLogsHandler: logr.GetLogsHandlerFunc(func(params logr.GetLogsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation logr.GetLogs has not yet been implemented")
 		}),
-		DataGetLongitudinalChartsHandler: data.GetLongitudinalChartsHandlerFunc(func(params data.GetLongitudinalChartsParams, principal interface{}) middleware.Responder {
+		DataGetLongitudinalChartsHandler: data.GetLongitudinalChartsHandlerFunc(func(params data.GetLongitudinalChartsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetLongitudinalCharts has not yet been implemented")
 		}),
-		DeviceGetSimilarTestingDevicesHandler: device.GetSimilarTestingDevicesHandlerFunc(func(params device.GetSimilarTestingDevicesParams, principal interface{}) middleware.Responder {
+		DeviceGetSimilarTestingDevicesHandler: device.GetSimilarTestingDevicesHandlerFunc(func(params device.GetSimilarTestingDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.GetSimilarTestingDevices has not yet been implemented")
 		}),
-		ConfigGetTransferAlarmConfigHandler: config.GetTransferAlarmConfigHandlerFunc(func(params config.GetTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+		ConfigGetTransferAlarmConfigHandler: config.GetTransferAlarmConfigHandlerFunc(func(params config.GetTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.GetTransferAlarmConfig has not yet been implemented")
 		}),
-		AlarmGetTransferAlarmsHandler: alarm.GetTransferAlarmsHandlerFunc(func(params alarm.GetTransferAlarmsParams, principal interface{}) middleware.Responder {
+		AlarmGetTransferAlarmsHandler: alarm.GetTransferAlarmsHandlerFunc(func(params alarm.GetTransferAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetTransferAlarms has not yet been implemented")
 		}),
-		DataGetTransverseChartsHandler: data.GetTransverseChartsHandlerFunc(func(params data.GetTransverseChartsParams, principal interface{}) middleware.Responder {
+		DataGetTransverseChartsHandler: data.GetTransverseChartsHandlerFunc(func(params data.GetTransverseChartsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetTransverseCharts has not yet been implemented")
 		}),
-		UserGetUserHandler: user.GetUserHandlerFunc(func(params user.GetUserParams, principal interface{}) middleware.Responder {
+		UserGetUserHandler: user.GetUserHandlerFunc(func(params user.GetUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.GetUser has not yet been implemented")
 		}),
-		UserGetUserInfoHandler: user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams, principal interface{}) middleware.Responder {
+		UserGetUserInfoHandler: user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.GetUserInfo has not yet been implemented")
 		}),
-		UserGetUsersHandler: user.GetUsersHandlerFunc(func(params user.GetUsersParams, principal interface{}) middleware.Responder {
+		UserGetUsersHandler: user.GetUsersHandlerFunc(func(params user.GetUsersParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.GetUsers has not yet been implemented")
 		}),
 		UserLoginHandler: user.LoginHandlerFunc(func(params user.LoginParams) middleware.Responder {
 			return middleware.NotImplemented("operation user.Login has not yet been implemented")
 		}),
-		UserLogoutHandler: user.LogoutHandlerFunc(func(params user.LogoutParams, principal interface{}) middleware.Responder {
+		UserLogoutHandler: user.LogoutHandlerFunc(func(params user.LogoutParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.Logout has not yet been implemented")
 		}),
-		DgaModifyEarlyAlarmConfigHandler: dga.ModifyEarlyAlarmConfigHandlerFunc(func(params dga.ModifyEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+		DgaModifyEarlyAlarmConfigHandler: dga.ModifyEarlyAlarmConfigHandlerFunc(func(params dga.ModifyEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.ModifyEarlyAlarmConfig has not yet been implemented")
 		}),
-		AlarmModifyLimitAlarmConfigHandler: alarm.ModifyLimitAlarmConfigHandlerFunc(func(params alarm.ModifyLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+		AlarmModifyLimitAlarmConfigHandler: alarm.ModifyLimitAlarmConfigHandlerFunc(func(params alarm.ModifyLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ModifyLimitAlarmConfig has not yet been implemented")
 		}),
-		ConfigModifyTransferAlarmConfigHandler: config.ModifyTransferAlarmConfigHandlerFunc(func(params config.ModifyTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+		ConfigModifyTransferAlarmConfigHandler: config.ModifyTransferAlarmConfigHandlerFunc(func(params config.ModifyTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.ModifyTransferAlarmConfig has not yet been implemented")
 		}),
 		SystemPingHandler: system.PingHandlerFunc(func(params system.PingParams) middleware.Responder {
 			return middleware.NotImplemented("operation system.Ping has not yet been implemented")
 		}),
-		DgaReceiveDataHandler: dga.ReceiveDataHandlerFunc(func(params dga.ReceiveDataParams, principal interface{}) middleware.Responder {
+		DgaReceiveDataHandler: dga.ReceiveDataHandlerFunc(func(params dga.ReceiveDataParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.ReceiveData has not yet been implemented")
 		}),
 		OauthRefreshTokenHandler: oauth.RefreshTokenHandlerFunc(func(params oauth.RefreshTokenParams) middleware.Responder {
 			return middleware.NotImplemented("operation oauth.RefreshToken has not yet been implemented")
 		}),
-		TemplateSynchronizeDeviceTemplateInfoHandler: template.SynchronizeDeviceTemplateInfoHandlerFunc(func(params template.SynchronizeDeviceTemplateInfoParams, principal interface{}) middleware.Responder {
+		TemplateSynchronizeDeviceTemplateInfoHandler: template.SynchronizeDeviceTemplateInfoHandlerFunc(func(params template.SynchronizeDeviceTemplateInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.SynchronizeDeviceTemplateInfo has not yet been implemented")
 		}),
 		OauthTokenHandler: oauth.TokenHandlerFunc(func(params oauth.TokenParams) middleware.Responder {
 			return middleware.NotImplemented("operation oauth.Token has not yet been implemented")
 		}),
-		ConfigUpdateAlarmConfigsHandler: config.UpdateAlarmConfigsHandlerFunc(func(params config.UpdateAlarmConfigsParams, principal interface{}) middleware.Responder {
+		ConfigUpdateAlarmConfigsHandler: config.UpdateAlarmConfigsHandlerFunc(func(params config.UpdateAlarmConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateAlarmConfigs has not yet been implemented")
 		}),
-		ConfigUpdateCleaningActiveRuleHandler: config.UpdateCleaningActiveRuleHandlerFunc(func(params config.UpdateCleaningActiveRuleParams, principal interface{}) middleware.Responder {
+		ConfigUpdateCleaningActiveRuleHandler: config.UpdateCleaningActiveRuleHandlerFunc(func(params config.UpdateCleaningActiveRuleParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateCleaningActiveRule has not yet been implemented")
 		}),
-		ConfigUpdateCleaningConfigsHandler: config.UpdateCleaningConfigsHandlerFunc(func(params config.UpdateCleaningConfigsParams, principal interface{}) middleware.Responder {
+		ConfigUpdateCleaningConfigsHandler: config.UpdateCleaningConfigsHandlerFunc(func(params config.UpdateCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateCleaningConfigs has not yet been implemented")
 		}),
-		DeviceUpdateDeviceHandler: device.UpdateDeviceHandlerFunc(func(params device.UpdateDeviceParams, principal interface{}) middleware.Responder {
+		DeviceUpdateDeviceHandler: device.UpdateDeviceHandlerFunc(func(params device.UpdateDeviceParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.UpdateDevice has not yet been implemented")
 		}),
-		TemplateUpdateDeviceFieldInfoHandler: template.UpdateDeviceFieldInfoHandlerFunc(func(params template.UpdateDeviceFieldInfoParams, principal interface{}) middleware.Responder {
+		TemplateUpdateDeviceFieldInfoHandler: template.UpdateDeviceFieldInfoHandlerFunc(func(params template.UpdateDeviceFieldInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.UpdateDeviceFieldInfo has not yet been implemented")
 		}),
-		TemplateUpdateDeviceProfileInfoHandler: template.UpdateDeviceProfileInfoHandlerFunc(func(params template.UpdateDeviceProfileInfoParams, principal interface{}) middleware.Responder {
+		TemplateUpdateDeviceProfileInfoHandler: template.UpdateDeviceProfileInfoHandlerFunc(func(params template.UpdateDeviceProfileInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.UpdateDeviceProfileInfo has not yet been implemented")
 		}),
-		DgaUpdateEarlyAlarmConfigHandler: dga.UpdateEarlyAlarmConfigHandlerFunc(func(params dga.UpdateEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+		DgaUpdateEarlyAlarmConfigHandler: dga.UpdateEarlyAlarmConfigHandlerFunc(func(params dga.UpdateEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.UpdateEarlyAlarmConfig has not yet been implemented")
 		}),
-		AlarmUpdateLimitAlarmConfigHandler: alarm.UpdateLimitAlarmConfigHandlerFunc(func(params alarm.UpdateLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+		AlarmUpdateLimitAlarmConfigHandler: alarm.UpdateLimitAlarmConfigHandlerFunc(func(params alarm.UpdateLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.UpdateLimitAlarmConfig has not yet been implemented")
 		}),
-		ConfigUpdateTransferAlarmConfigHandler: config.UpdateTransferAlarmConfigHandlerFunc(func(params config.UpdateTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+		ConfigUpdateTransferAlarmConfigHandler: config.UpdateTransferAlarmConfigHandlerFunc(func(params config.UpdateTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateTransferAlarmConfig has not yet been implemented")
 		}),
-		UserUpdateUserHandler: user.UpdateUserHandlerFunc(func(params user.UpdateUserParams, principal interface{}) middleware.Responder {
+		UserUpdateUserHandler: user.UpdateUserHandlerFunc(func(params user.UpdateUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.UpdateUser has not yet been implemented")
 		}),
-		DeviceUploadDevicesHandler: device.UploadDevicesHandlerFunc(func(params device.UploadDevicesParams, principal interface{}) middleware.Responder {
+		DeviceUploadDevicesHandler: device.UploadDevicesHandlerFunc(func(params device.UploadDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.UploadDevices has not yet been implemented")
 		}),
 		SystemVersionHandler: system.VersionHandlerFunc(func(params system.VersionParams) middleware.Responder {
 			return middleware.NotImplemented("operation system.Version has not yet been implemented")
 		}),
+
+		OAuth2Auth: func(token string, scopes []string) (*v1.Principal, error) {
+			return nil, errors.NotImplemented("oauth2 bearer auth (OAuth2) has not yet been implemented")
+		},
+		// default authorizer is authorized meaning no requests are blocked
+		APIAuthorizer: security.Authorized(),
 	}
 }
 
@@ -291,6 +298,13 @@ type MaterialAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+
+	// OAuth2Auth registers a function that takes an access token and a collection of required scopes and returns a principal
+	// it performs authentication based on an oauth2 bearer token provided in the request
+	OAuth2Auth func(string, []string) (*v1.Principal, error)
+
+	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
+	APIAuthorizer runtime.Authorizer
 
 	// AnalysisAggregateHandler sets the operation handler for the aggregate operation
 	AnalysisAggregateHandler analysis.AggregateHandler
@@ -504,6 +518,10 @@ func (o *MaterialAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
+	if o.OAuth2Auth == nil {
+		unregistered = append(unregistered, "OAuth2Auth")
+	}
+
 	if o.AnalysisAggregateHandler == nil {
 		unregistered = append(unregistered, "analysis.AggregateHandler")
 	}
@@ -714,12 +732,22 @@ func (o *MaterialAPI) ServeErrorFor(operationID string) func(http.ResponseWriter
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *MaterialAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
-	return nil
+	result := make(map[string]runtime.Authenticator)
+	for name := range schemes {
+		switch name {
+		case "OAuth2":
+			result[name] = o.BearerAuthenticator(name, func(token string, scopes []string) (interface{}, error) {
+				return o.OAuth2Auth(token, scopes)
+			})
+
+		}
+	}
+	return result
 }
 
 // Authorizer returns the registered authorizer
 func (o *MaterialAPI) Authorizer() runtime.Authorizer {
-	return nil
+	return o.APIAuthorizer
 }
 
 // ConsumersFor gets the consumers for the specified media types.

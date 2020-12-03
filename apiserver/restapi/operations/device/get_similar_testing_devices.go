@@ -7,21 +7,22 @@ package device
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetSimilarTestingDevicesHandlerFunc turns a function with the right signature into a get similar testing devices handler
-type GetSimilarTestingDevicesHandlerFunc func(GetSimilarTestingDevicesParams, interface{}) middleware.Responder
+type GetSimilarTestingDevicesHandlerFunc func(GetSimilarTestingDevicesParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetSimilarTestingDevicesHandlerFunc) Handle(params GetSimilarTestingDevicesParams, principal interface{}) middleware.Responder {
+func (fn GetSimilarTestingDevicesHandlerFunc) Handle(params GetSimilarTestingDevicesParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetSimilarTestingDevicesHandler interface for that can handle valid get similar testing devices params
 type GetSimilarTestingDevicesHandler interface {
-	Handle(GetSimilarTestingDevicesParams, interface{}) middleware.Responder
+	Handle(GetSimilarTestingDevicesParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetSimilarTestingDevices creates a new http.Handler for the get similar testing devices operation
@@ -56,9 +57,9 @@ func (o *GetSimilarTestingDevices) ServeHTTP(rw http.ResponseWriter, r *http.Req
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

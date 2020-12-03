@@ -11,19 +11,21 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // ControlAlarmTaskHandlerFunc turns a function with the right signature into a control alarm task handler
-type ControlAlarmTaskHandlerFunc func(ControlAlarmTaskParams, interface{}) middleware.Responder
+type ControlAlarmTaskHandlerFunc func(ControlAlarmTaskParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ControlAlarmTaskHandlerFunc) Handle(params ControlAlarmTaskParams, principal interface{}) middleware.Responder {
+func (fn ControlAlarmTaskHandlerFunc) Handle(params ControlAlarmTaskParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ControlAlarmTaskHandler interface for that can handle valid control alarm task params
 type ControlAlarmTaskHandler interface {
-	Handle(ControlAlarmTaskParams, interface{}) middleware.Responder
+	Handle(ControlAlarmTaskParams, *v1.Principal) middleware.Responder
 }
 
 // NewControlAlarmTask creates a new http.Handler for the control alarm task operation
@@ -58,9 +60,9 @@ func (o *ControlAlarmTask) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -7,6 +7,7 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -14,16 +15,16 @@ import (
 )
 
 // ConfirmTransferAlarmHandlerFunc turns a function with the right signature into a confirm transfer alarm handler
-type ConfirmTransferAlarmHandlerFunc func(ConfirmTransferAlarmParams, interface{}) middleware.Responder
+type ConfirmTransferAlarmHandlerFunc func(ConfirmTransferAlarmParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ConfirmTransferAlarmHandlerFunc) Handle(params ConfirmTransferAlarmParams, principal interface{}) middleware.Responder {
+func (fn ConfirmTransferAlarmHandlerFunc) Handle(params ConfirmTransferAlarmParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ConfirmTransferAlarmHandler interface for that can handle valid confirm transfer alarm params
 type ConfirmTransferAlarmHandler interface {
-	Handle(ConfirmTransferAlarmParams, interface{}) middleware.Responder
+	Handle(ConfirmTransferAlarmParams, *v1.Principal) middleware.Responder
 }
 
 // NewConfirmTransferAlarm creates a new http.Handler for the confirm transfer alarm operation
@@ -58,9 +59,9 @@ func (o *ConfirmTransferAlarm) ServeHTTP(rw http.ResponseWriter, r *http.Request
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

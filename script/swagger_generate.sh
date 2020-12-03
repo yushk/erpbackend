@@ -16,14 +16,12 @@ set -e -o pipefail
 # export GOROOT="/usr/lib/go-1.12.5"
 
 SERVER_COMMAND="pushd ${WORKDIR} && \
-                swagger generate server ${QUIET}  -A ${APP} -t ./${TARGET} -f ./swagger/${SWAGGER} --model-package=${PACKAGE} && \
-                cp ./cmd/material-server/main.go ./ && \
+                swagger generate server ${QUIET} -P ${PACKAGE}.Principal -A ${APP} -t ./${TARGET} -f ./swagger/${SWAGGER} --model-package=${PACKAGE} && \
                 popd"
 
 CLEAN_COMMAND="pushd ${WORKDIR} && \
                 rm -rf ./client && \
                 rm -rf ./cmd && \
-                rm -rf ./main.go && \
                 rm -rf ./restapi/operations && \
                 rm -rf ./restapi/doc.go && \
                 rm -rf ./restapi/embedded_spec.go && \

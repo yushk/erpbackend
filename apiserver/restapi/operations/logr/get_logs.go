@@ -9,19 +9,21 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // GetLogsHandlerFunc turns a function with the right signature into a get logs handler
-type GetLogsHandlerFunc func(GetLogsParams, interface{}) middleware.Responder
+type GetLogsHandlerFunc func(GetLogsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetLogsHandlerFunc) Handle(params GetLogsParams, principal interface{}) middleware.Responder {
+func (fn GetLogsHandlerFunc) Handle(params GetLogsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetLogsHandler interface for that can handle valid get logs params
 type GetLogsHandler interface {
-	Handle(GetLogsParams, interface{}) middleware.Responder
+	Handle(GetLogsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetLogs creates a new http.Handler for the get logs operation
@@ -56,9 +58,9 @@ func (o *GetLogs) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

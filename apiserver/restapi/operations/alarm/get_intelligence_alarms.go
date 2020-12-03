@@ -7,21 +7,22 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetIntelligenceAlarmsHandlerFunc turns a function with the right signature into a get intelligence alarms handler
-type GetIntelligenceAlarmsHandlerFunc func(GetIntelligenceAlarmsParams, interface{}) middleware.Responder
+type GetIntelligenceAlarmsHandlerFunc func(GetIntelligenceAlarmsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetIntelligenceAlarmsHandlerFunc) Handle(params GetIntelligenceAlarmsParams, principal interface{}) middleware.Responder {
+func (fn GetIntelligenceAlarmsHandlerFunc) Handle(params GetIntelligenceAlarmsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetIntelligenceAlarmsHandler interface for that can handle valid get intelligence alarms params
 type GetIntelligenceAlarmsHandler interface {
-	Handle(GetIntelligenceAlarmsParams, interface{}) middleware.Responder
+	Handle(GetIntelligenceAlarmsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetIntelligenceAlarms creates a new http.Handler for the get intelligence alarms operation
@@ -56,9 +57,9 @@ func (o *GetIntelligenceAlarms) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

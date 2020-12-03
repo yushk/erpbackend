@@ -7,6 +7,7 @@ package template
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -14,16 +15,16 @@ import (
 )
 
 // UpdateDeviceProfileInfoHandlerFunc turns a function with the right signature into a update device profile info handler
-type UpdateDeviceProfileInfoHandlerFunc func(UpdateDeviceProfileInfoParams, interface{}) middleware.Responder
+type UpdateDeviceProfileInfoHandlerFunc func(UpdateDeviceProfileInfoParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateDeviceProfileInfoHandlerFunc) Handle(params UpdateDeviceProfileInfoParams, principal interface{}) middleware.Responder {
+func (fn UpdateDeviceProfileInfoHandlerFunc) Handle(params UpdateDeviceProfileInfoParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateDeviceProfileInfoHandler interface for that can handle valid update device profile info params
 type UpdateDeviceProfileInfoHandler interface {
-	Handle(UpdateDeviceProfileInfoParams, interface{}) middleware.Responder
+	Handle(UpdateDeviceProfileInfoParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateDeviceProfileInfo creates a new http.Handler for the update device profile info operation
@@ -58,9 +59,9 @@ func (o *UpdateDeviceProfileInfo) ServeHTTP(rw http.ResponseWriter, r *http.Requ
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

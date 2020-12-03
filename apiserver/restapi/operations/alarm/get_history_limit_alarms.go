@@ -7,21 +7,22 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetHistoryLimitAlarmsHandlerFunc turns a function with the right signature into a get history limit alarms handler
-type GetHistoryLimitAlarmsHandlerFunc func(GetHistoryLimitAlarmsParams, interface{}) middleware.Responder
+type GetHistoryLimitAlarmsHandlerFunc func(GetHistoryLimitAlarmsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetHistoryLimitAlarmsHandlerFunc) Handle(params GetHistoryLimitAlarmsParams, principal interface{}) middleware.Responder {
+func (fn GetHistoryLimitAlarmsHandlerFunc) Handle(params GetHistoryLimitAlarmsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetHistoryLimitAlarmsHandler interface for that can handle valid get history limit alarms params
 type GetHistoryLimitAlarmsHandler interface {
-	Handle(GetHistoryLimitAlarmsParams, interface{}) middleware.Responder
+	Handle(GetHistoryLimitAlarmsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetHistoryLimitAlarms creates a new http.Handler for the get history limit alarms operation
@@ -56,9 +57,9 @@ func (o *GetHistoryLimitAlarms) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

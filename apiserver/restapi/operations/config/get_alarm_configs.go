@@ -7,21 +7,22 @@ package config
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetAlarmConfigsHandlerFunc turns a function with the right signature into a get alarm configs handler
-type GetAlarmConfigsHandlerFunc func(GetAlarmConfigsParams, interface{}) middleware.Responder
+type GetAlarmConfigsHandlerFunc func(GetAlarmConfigsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetAlarmConfigsHandlerFunc) Handle(params GetAlarmConfigsParams, principal interface{}) middleware.Responder {
+func (fn GetAlarmConfigsHandlerFunc) Handle(params GetAlarmConfigsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetAlarmConfigsHandler interface for that can handle valid get alarm configs params
 type GetAlarmConfigsHandler interface {
-	Handle(GetAlarmConfigsParams, interface{}) middleware.Responder
+	Handle(GetAlarmConfigsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetAlarmConfigs creates a new http.Handler for the get alarm configs operation
@@ -56,9 +57,9 @@ func (o *GetAlarmConfigs) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

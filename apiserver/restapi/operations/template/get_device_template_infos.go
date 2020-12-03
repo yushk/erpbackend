@@ -7,21 +7,22 @@ package template
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetDeviceTemplateInfosHandlerFunc turns a function with the right signature into a get device template infos handler
-type GetDeviceTemplateInfosHandlerFunc func(GetDeviceTemplateInfosParams, interface{}) middleware.Responder
+type GetDeviceTemplateInfosHandlerFunc func(GetDeviceTemplateInfosParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetDeviceTemplateInfosHandlerFunc) Handle(params GetDeviceTemplateInfosParams, principal interface{}) middleware.Responder {
+func (fn GetDeviceTemplateInfosHandlerFunc) Handle(params GetDeviceTemplateInfosParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetDeviceTemplateInfosHandler interface for that can handle valid get device template infos params
 type GetDeviceTemplateInfosHandler interface {
-	Handle(GetDeviceTemplateInfosParams, interface{}) middleware.Responder
+	Handle(GetDeviceTemplateInfosParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetDeviceTemplateInfos creates a new http.Handler for the get device template infos operation
@@ -56,9 +57,9 @@ func (o *GetDeviceTemplateInfos) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

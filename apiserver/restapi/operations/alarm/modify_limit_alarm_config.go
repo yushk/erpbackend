@@ -7,21 +7,22 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // ModifyLimitAlarmConfigHandlerFunc turns a function with the right signature into a modify limit alarm config handler
-type ModifyLimitAlarmConfigHandlerFunc func(ModifyLimitAlarmConfigParams, interface{}) middleware.Responder
+type ModifyLimitAlarmConfigHandlerFunc func(ModifyLimitAlarmConfigParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ModifyLimitAlarmConfigHandlerFunc) Handle(params ModifyLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+func (fn ModifyLimitAlarmConfigHandlerFunc) Handle(params ModifyLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ModifyLimitAlarmConfigHandler interface for that can handle valid modify limit alarm config params
 type ModifyLimitAlarmConfigHandler interface {
-	Handle(ModifyLimitAlarmConfigParams, interface{}) middleware.Responder
+	Handle(ModifyLimitAlarmConfigParams, *v1.Principal) middleware.Responder
 }
 
 // NewModifyLimitAlarmConfig creates a new http.Handler for the modify limit alarm config operation
@@ -56,9 +57,9 @@ func (o *ModifyLimitAlarmConfig) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

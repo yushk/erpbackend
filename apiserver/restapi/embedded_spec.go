@@ -40,7 +40,7 @@ func init() {
     },
     "version": "1.0.0"
   },
-  "host": "localhost:8080",
+  "host": "localhost:8765",
   "basePath": "/api",
   "paths": {
     "/v1/alarms/devices": {
@@ -4441,6 +4441,25 @@ func init() {
       }
     }
   },
+  "securityDefinitions": {
+    "OAuth2": {
+      "type": "oauth2",
+      "flow": "password",
+      "tokenUrl": "http://localhost:8765/api/v1/oauth/token",
+      "scopes": {
+        "admin": "管理员",
+        "root": "超级管理员",
+        "user": "普通用户"
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": [
+        "user"
+      ]
+    }
+  ],
   "tags": [
     {
       "description": "权限认证",
@@ -4519,7 +4538,7 @@ func init() {
     },
     "version": "1.0.0"
   },
-  "host": "localhost:8080",
+  "host": "localhost:8765",
   "basePath": "/api",
   "paths": {
     "/v1/alarms/devices": {
@@ -8920,6 +8939,25 @@ func init() {
       }
     }
   },
+  "securityDefinitions": {
+    "OAuth2": {
+      "type": "oauth2",
+      "flow": "password",
+      "tokenUrl": "http://localhost:8765/api/v1/oauth/token",
+      "scopes": {
+        "admin": "管理员",
+        "root": "超级管理员",
+        "user": "普通用户"
+      }
+    }
+  },
+  "security": [
+    {
+      "OAuth2": [
+        "user"
+      ]
+    }
+  ],
   "tags": [
     {
       "description": "权限认证",

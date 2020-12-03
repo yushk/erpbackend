@@ -74,8 +74,8 @@ func Init() {
 		config.SetDefault(CaKeyPath, "./certs/ca.key")
 		config.SetDefault(CaCrtPath, "./certs/ca.crt")
 
-		config.SetDefault(RootUsername, "kaisawind")
-		config.SetDefault(RootPassword, "kaisawind")
+		config.SetDefault(RootUsername, "admin")
+		config.SetDefault(RootPassword, "admin@123456")
 
 		config.SetDefault(MonitorHost, "localhost")
 		config.SetDefault(MonitorPort, "30033")

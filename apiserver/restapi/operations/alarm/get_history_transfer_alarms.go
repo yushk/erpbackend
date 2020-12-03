@@ -7,21 +7,22 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetHistoryTransferAlarmsHandlerFunc turns a function with the right signature into a get history transfer alarms handler
-type GetHistoryTransferAlarmsHandlerFunc func(GetHistoryTransferAlarmsParams, interface{}) middleware.Responder
+type GetHistoryTransferAlarmsHandlerFunc func(GetHistoryTransferAlarmsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetHistoryTransferAlarmsHandlerFunc) Handle(params GetHistoryTransferAlarmsParams, principal interface{}) middleware.Responder {
+func (fn GetHistoryTransferAlarmsHandlerFunc) Handle(params GetHistoryTransferAlarmsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetHistoryTransferAlarmsHandler interface for that can handle valid get history transfer alarms params
 type GetHistoryTransferAlarmsHandler interface {
-	Handle(GetHistoryTransferAlarmsParams, interface{}) middleware.Responder
+	Handle(GetHistoryTransferAlarmsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetHistoryTransferAlarms creates a new http.Handler for the get history transfer alarms operation
@@ -56,9 +57,9 @@ func (o *GetHistoryTransferAlarms) ServeHTTP(rw http.ResponseWriter, r *http.Req
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

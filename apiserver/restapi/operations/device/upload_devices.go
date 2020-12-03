@@ -18,16 +18,16 @@ import (
 )
 
 // UploadDevicesHandlerFunc turns a function with the right signature into a upload devices handler
-type UploadDevicesHandlerFunc func(UploadDevicesParams, interface{}) middleware.Responder
+type UploadDevicesHandlerFunc func(UploadDevicesParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UploadDevicesHandlerFunc) Handle(params UploadDevicesParams, principal interface{}) middleware.Responder {
+func (fn UploadDevicesHandlerFunc) Handle(params UploadDevicesParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UploadDevicesHandler interface for that can handle valid upload devices params
 type UploadDevicesHandler interface {
-	Handle(UploadDevicesParams, interface{}) middleware.Responder
+	Handle(UploadDevicesParams, *v1.Principal) middleware.Responder
 }
 
 // NewUploadDevices creates a new http.Handler for the upload devices operation
@@ -62,9 +62,9 @@ func (o *UploadDevices) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

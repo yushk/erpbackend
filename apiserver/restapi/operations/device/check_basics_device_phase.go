@@ -13,19 +13,21 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // CheckBasicsDevicePhaseHandlerFunc turns a function with the right signature into a check basics device phase handler
-type CheckBasicsDevicePhaseHandlerFunc func(CheckBasicsDevicePhaseParams, interface{}) middleware.Responder
+type CheckBasicsDevicePhaseHandlerFunc func(CheckBasicsDevicePhaseParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn CheckBasicsDevicePhaseHandlerFunc) Handle(params CheckBasicsDevicePhaseParams, principal interface{}) middleware.Responder {
+func (fn CheckBasicsDevicePhaseHandlerFunc) Handle(params CheckBasicsDevicePhaseParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // CheckBasicsDevicePhaseHandler interface for that can handle valid check basics device phase params
 type CheckBasicsDevicePhaseHandler interface {
-	Handle(CheckBasicsDevicePhaseParams, interface{}) middleware.Responder
+	Handle(CheckBasicsDevicePhaseParams, *v1.Principal) middleware.Responder
 }
 
 // NewCheckBasicsDevicePhase creates a new http.Handler for the check basics device phase operation
@@ -60,9 +62,9 @@ func (o *CheckBasicsDevicePhase) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

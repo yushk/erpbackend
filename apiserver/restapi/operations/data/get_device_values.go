@@ -7,21 +7,22 @@ package data
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetDeviceValuesHandlerFunc turns a function with the right signature into a get device values handler
-type GetDeviceValuesHandlerFunc func(GetDeviceValuesParams, interface{}) middleware.Responder
+type GetDeviceValuesHandlerFunc func(GetDeviceValuesParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetDeviceValuesHandlerFunc) Handle(params GetDeviceValuesParams, principal interface{}) middleware.Responder {
+func (fn GetDeviceValuesHandlerFunc) Handle(params GetDeviceValuesParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetDeviceValuesHandler interface for that can handle valid get device values params
 type GetDeviceValuesHandler interface {
-	Handle(GetDeviceValuesParams, interface{}) middleware.Responder
+	Handle(GetDeviceValuesParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetDeviceValues creates a new http.Handler for the get device values operation
@@ -56,9 +57,9 @@ func (o *GetDeviceValues) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

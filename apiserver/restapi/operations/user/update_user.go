@@ -7,21 +7,22 @@ package user
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateUserHandlerFunc turns a function with the right signature into a update user handler
-type UpdateUserHandlerFunc func(UpdateUserParams, interface{}) middleware.Responder
+type UpdateUserHandlerFunc func(UpdateUserParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateUserHandlerFunc) Handle(params UpdateUserParams, principal interface{}) middleware.Responder {
+func (fn UpdateUserHandlerFunc) Handle(params UpdateUserParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateUserHandler interface for that can handle valid update user params
 type UpdateUserHandler interface {
-	Handle(UpdateUserParams, interface{}) middleware.Responder
+	Handle(UpdateUserParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateUser creates a new http.Handler for the update user operation
@@ -56,9 +57,9 @@ func (o *UpdateUser) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

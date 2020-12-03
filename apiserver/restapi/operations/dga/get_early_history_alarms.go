@@ -7,21 +7,22 @@ package dga
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetEarlyHistoryAlarmsHandlerFunc turns a function with the right signature into a get early history alarms handler
-type GetEarlyHistoryAlarmsHandlerFunc func(GetEarlyHistoryAlarmsParams, interface{}) middleware.Responder
+type GetEarlyHistoryAlarmsHandlerFunc func(GetEarlyHistoryAlarmsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetEarlyHistoryAlarmsHandlerFunc) Handle(params GetEarlyHistoryAlarmsParams, principal interface{}) middleware.Responder {
+func (fn GetEarlyHistoryAlarmsHandlerFunc) Handle(params GetEarlyHistoryAlarmsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetEarlyHistoryAlarmsHandler interface for that can handle valid get early history alarms params
 type GetEarlyHistoryAlarmsHandler interface {
-	Handle(GetEarlyHistoryAlarmsParams, interface{}) middleware.Responder
+	Handle(GetEarlyHistoryAlarmsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetEarlyHistoryAlarms creates a new http.Handler for the get early history alarms operation
@@ -56,9 +57,9 @@ func (o *GetEarlyHistoryAlarms) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

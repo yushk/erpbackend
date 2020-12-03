@@ -17,16 +17,16 @@ import (
 )
 
 // UpdateDeviceFieldInfoHandlerFunc turns a function with the right signature into a update device field info handler
-type UpdateDeviceFieldInfoHandlerFunc func(UpdateDeviceFieldInfoParams, interface{}) middleware.Responder
+type UpdateDeviceFieldInfoHandlerFunc func(UpdateDeviceFieldInfoParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateDeviceFieldInfoHandlerFunc) Handle(params UpdateDeviceFieldInfoParams, principal interface{}) middleware.Responder {
+func (fn UpdateDeviceFieldInfoHandlerFunc) Handle(params UpdateDeviceFieldInfoParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateDeviceFieldInfoHandler interface for that can handle valid update device field info params
 type UpdateDeviceFieldInfoHandler interface {
-	Handle(UpdateDeviceFieldInfoParams, interface{}) middleware.Responder
+	Handle(UpdateDeviceFieldInfoParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateDeviceFieldInfo creates a new http.Handler for the update device field info operation
@@ -61,9 +61,9 @@ func (o *UpdateDeviceFieldInfo) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

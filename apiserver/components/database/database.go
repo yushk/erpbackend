@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"swagger/apiserver/components/database/mongo"
-	"swagger/apiserver/components/database/options"
 	v1 "swagger/apiserver/v1"
 )
 
@@ -49,11 +48,11 @@ type Database interface {
 }
 
 // New 创建数据库句柄
-func New(name Type, opts *options.Options) (Database, error) {
+func New(name Type) (Database, error) {
 	switch name {
 	case MongoDB:
-		return mongo.NewDB(opts)
+		return mongo.NewDB()
 	default:
-		return mongo.NewDB(opts)
+		return mongo.NewDB()
 	}
 }

@@ -7,21 +7,22 @@ package device
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // DeleteDeviceHandlerFunc turns a function with the right signature into a delete device handler
-type DeleteDeviceHandlerFunc func(DeleteDeviceParams, interface{}) middleware.Responder
+type DeleteDeviceHandlerFunc func(DeleteDeviceParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn DeleteDeviceHandlerFunc) Handle(params DeleteDeviceParams, principal interface{}) middleware.Responder {
+func (fn DeleteDeviceHandlerFunc) Handle(params DeleteDeviceParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // DeleteDeviceHandler interface for that can handle valid delete device params
 type DeleteDeviceHandler interface {
-	Handle(DeleteDeviceParams, interface{}) middleware.Responder
+	Handle(DeleteDeviceParams, *v1.Principal) middleware.Responder
 }
 
 // NewDeleteDevice creates a new http.Handler for the delete device operation
@@ -56,9 +57,9 @@ func (o *DeleteDevice) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

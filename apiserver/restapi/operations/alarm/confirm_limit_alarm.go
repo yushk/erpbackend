@@ -7,6 +7,7 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -14,16 +15,16 @@ import (
 )
 
 // ConfirmLimitAlarmHandlerFunc turns a function with the right signature into a confirm limit alarm handler
-type ConfirmLimitAlarmHandlerFunc func(ConfirmLimitAlarmParams, interface{}) middleware.Responder
+type ConfirmLimitAlarmHandlerFunc func(ConfirmLimitAlarmParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ConfirmLimitAlarmHandlerFunc) Handle(params ConfirmLimitAlarmParams, principal interface{}) middleware.Responder {
+func (fn ConfirmLimitAlarmHandlerFunc) Handle(params ConfirmLimitAlarmParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ConfirmLimitAlarmHandler interface for that can handle valid confirm limit alarm params
 type ConfirmLimitAlarmHandler interface {
-	Handle(ConfirmLimitAlarmParams, interface{}) middleware.Responder
+	Handle(ConfirmLimitAlarmParams, *v1.Principal) middleware.Responder
 }
 
 // NewConfirmLimitAlarm creates a new http.Handler for the confirm limit alarm operation
@@ -58,9 +59,9 @@ func (o *ConfirmLimitAlarm) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -7,21 +7,22 @@ package user
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetUsersHandlerFunc turns a function with the right signature into a get users handler
-type GetUsersHandlerFunc func(GetUsersParams, interface{}) middleware.Responder
+type GetUsersHandlerFunc func(GetUsersParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetUsersHandlerFunc) Handle(params GetUsersParams, principal interface{}) middleware.Responder {
+func (fn GetUsersHandlerFunc) Handle(params GetUsersParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetUsersHandler interface for that can handle valid get users params
 type GetUsersHandler interface {
-	Handle(GetUsersParams, interface{}) middleware.Responder
+	Handle(GetUsersParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetUsers creates a new http.Handler for the get users operation
@@ -56,9 +57,9 @@ func (o *GetUsers) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -9,19 +9,21 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // GetDeviceFieldInfosHandlerFunc turns a function with the right signature into a get device field infos handler
-type GetDeviceFieldInfosHandlerFunc func(GetDeviceFieldInfosParams, interface{}) middleware.Responder
+type GetDeviceFieldInfosHandlerFunc func(GetDeviceFieldInfosParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetDeviceFieldInfosHandlerFunc) Handle(params GetDeviceFieldInfosParams, principal interface{}) middleware.Responder {
+func (fn GetDeviceFieldInfosHandlerFunc) Handle(params GetDeviceFieldInfosParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetDeviceFieldInfosHandler interface for that can handle valid get device field infos params
 type GetDeviceFieldInfosHandler interface {
-	Handle(GetDeviceFieldInfosParams, interface{}) middleware.Responder
+	Handle(GetDeviceFieldInfosParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetDeviceFieldInfos creates a new http.Handler for the get device field infos operation
@@ -56,9 +58,9 @@ func (o *GetDeviceFieldInfos) ServeHTTP(rw http.ResponseWriter, r *http.Request)
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

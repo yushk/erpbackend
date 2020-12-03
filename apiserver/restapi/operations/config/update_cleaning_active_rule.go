@@ -7,6 +7,7 @@ package config
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -14,16 +15,16 @@ import (
 )
 
 // UpdateCleaningActiveRuleHandlerFunc turns a function with the right signature into a update cleaning active rule handler
-type UpdateCleaningActiveRuleHandlerFunc func(UpdateCleaningActiveRuleParams, interface{}) middleware.Responder
+type UpdateCleaningActiveRuleHandlerFunc func(UpdateCleaningActiveRuleParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateCleaningActiveRuleHandlerFunc) Handle(params UpdateCleaningActiveRuleParams, principal interface{}) middleware.Responder {
+func (fn UpdateCleaningActiveRuleHandlerFunc) Handle(params UpdateCleaningActiveRuleParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateCleaningActiveRuleHandler interface for that can handle valid update cleaning active rule params
 type UpdateCleaningActiveRuleHandler interface {
-	Handle(UpdateCleaningActiveRuleParams, interface{}) middleware.Responder
+	Handle(UpdateCleaningActiveRuleParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateCleaningActiveRule creates a new http.Handler for the update cleaning active rule operation
@@ -58,9 +59,9 @@ func (o *UpdateCleaningActiveRule) ServeHTTP(rw http.ResponseWriter, r *http.Req
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

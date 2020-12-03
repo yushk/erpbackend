@@ -5,10 +5,19 @@ import (
 	// "strings"
 
 	"fmt"
+	"regexp"
+	"strings"
+	"swagger/apiserver/components/database"
 	"swagger/apiserver/restapi/operations/user"
 	v1 "swagger/apiserver/v1"
+	"swagger/pkg/config"
+	"swagger/pkg/helper"
+	"time"
 
-	"github.com/go-openapi/runtime/middleware"
+	"github.com/dgrijalva/jwt-go"
+	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/rs/xid"
+	"github.com/sirupsen/logrus"
 )
 
 // ChangeCurrentUserPassword 修改当前用户密码
@@ -102,65 +111,63 @@ func ChangeUserPassword(params user.ChangeUserPasswordParams, principal *v1.Prin
 
 // CreateUser 创建用户
 func CreateUser(params user.CreateUserParams, principal *v1.Principal) middleware.Responder {
-	// if strings.Trim(*params.Body.Name, " ") == "" {
-	// 	return BadRequestError("用户名不能为空")
-	// }
-	// if strings.Trim(params.Body.Password, " ") == "" {
-	// 	return BadRequestError("用户密码不能为空")
-	// }
-	// if strings.Trim(*params.Body.Role, " ") == "" {
-	// 	return BadRequestError("用户角色不能为空")
-	// }
-	// regxName, err := regexp.Compile(`^[a-zA-Z0-9_]{5,16}$`)
-	// regxPassword, err := regexp.Compile(`^[a-zA-Z0-9_\-]{5,16}$`)
-	// if err != nil {
-	// 	Error(err)
-	// }
-	// resName := regxName.MatchString(*params.Body.Name)
-	// resPassword := regxPassword.MatchString(params.Body.Password)
-	// if !resName {
-	// 	return BadRequestError("用户名格式错误,请重新输入")
-	// }
-	// if !resPassword {
-	// 	return BadRequestError("用户密码格式错误,请重新输入")
-	// }
-	// if strings.Trim(*params.Body.Telephone, " ") != "" {
-	// 	regxPhone, err := regexp.Compile(`^1([38][0-9]|14[579]|5[^4]|16[6]|7[1-35-8]|9[189])\d{8}$`)
-	// 	if err != nil {
-	// 		Error(err)
-	// 	}
-	// 	resPhone := regxPhone.MatchString(*params.Body.Telephone)
-	// 	if resPhone == false {
-	// 		return BadRequestError("电话号码格式错误,请重新输入")
-	// 	}
-	// }
-	// ctx := params.HTTPRequest.Context()
-	// c, err := monitor.NewGRPCClient()
-	// if err != nil {
-	// 	return Error(err)
-	// }
-	// defer c.Close()
-	// checkUserNameReply, err := c.User().CheckUserName(ctx, &pb.CheckUserNameRequest{Username: *params.Body.Name})
-	// if err != nil {
-	// 	return Error(err)
-	// }
-	// if !checkUserNameReply.Result {
-	// 	return BadRequestError("用户名已被注册,请重新输入")
-	// }
-	// registerUserReply, err := c.User().RegisterUser(ctx, &pb.RegisterUserRequest{
-	// 	User: &pb.User{
-	// 		Name:      *params.Body.Name,
-	// 		Email:     *params.Body.Email,
-	// 		Telephone: *params.Body.Telephone,
-	// 		Role:      *params.Body.Role,
-	// 	},
-	// 	Password: params.Body.Password,
-	// })
-	// if err != nil {
-	// 	return Error(err)
-	// }
-	payload := pbUserToV1User()
-	return user.NewCreateUserOK().WithPayload(payload)
+	logrus.Infoln("CreateUser", params.Body)
+	if strings.Trim(*params.Body.Name, " ") == "" {
+		return BadRequestError("用户名不能为空")
+	}
+	if strings.Trim(params.Body.Password, " ") == "" {
+		return BadRequestError("用户密码不能为空")
+	}
+	if strings.Trim(*params.Body.Role, " ") == "" {
+		return BadRequestError("用户角色不能为空")
+	}
+	regxName, err := regexp.Compile(`^[a-zA-Z0-9_]{5,16}$`)
+	regxPassword, err := regexp.Compile(`^[a-zA-Z0-9_\-]{5,16}$`)
+	if err != nil {
+		Error(err)
+	}
+	resName := regxName.MatchString(*params.Body.Name)
+	resPassword := regxPassword.MatchString(params.Body.Password)
+	if !resName {
+		return BadRequestError("用户名格式错误,请重新输入")
+	}
+	if !resPassword {
+		return BadRequestError("用户密码格式错误,请重新输入")
+	}
+	if strings.Trim(*params.Body.Telephone, " ") != "" {
+		regxPhone, err := regexp.Compile(`^1([38][0-9]|14[579]|5[^4]|16[6]|7[1-35-8]|9[189])\d{8}$`)
+		if err != nil {
+			Error(err)
+		}
+		resPhone := regxPhone.MatchString(*params.Body.Telephone)
+		if resPhone == false {
+			return BadRequestError("电话号码格式错误,请重新输入")
+		}
+	}
+	ctx := params.HTTPRequest.Context()
+	var dbType = config.GetString(config.DBType)
+	client, err := database.New(database.Type(dbType))
+	userCount, err := client.FindUserCount(ctx, *params.Body.Name)
+	if userCount > 0 {
+		return BadRequestError("用户名已被注册,请重新输入")
+	}
+	Id := xid.New().String()
+	Created := time.Now().UnixNano() / 1e6
+	Modified := time.Now().UnixNano() / 1e6
+	reguser := &v1.User{
+		ID:        &Id,
+		Name:      params.Body.Name,
+		Email:     params.Body.Email,
+		Created:   &Created,
+		Modified:  &Modified,
+		Role:      params.Body.Role,
+		Telephone: params.Body.Telephone,
+	}
+	resuser, err := client.RegisterUser(ctx, reguser, params.Body.Password)
+	if err != nil {
+		return BadRequestError("用户名已被注册,请重新输入")
+	}
+	return user.NewCreateUserOK().WithPayload(resuser)
 }
 
 // DeleteUser 删除用户
@@ -202,9 +209,15 @@ func GetUser(params user.GetUserParams, principal *v1.Principal) middleware.Resp
 }
 
 // GetUserInfo 获取当前用户信息
-func GetUserInfo(params user.GetUserInfoParams, principal interface{}) middleware.Responder {
-	// ctx := params.HTTPRequest.Context()
-	fmt.Println("sssssssss")
+func GetUserInfo(params user.GetUserInfoParams, principal *v1.Principal) middleware.Responder {
+	ctx := params.HTTPRequest.Context()
+	var dbType = config.GetString(config.DBType)
+	client, err := database.New(database.Type(dbType))
+	if err != nil {
+		return Error(err)
+	}
+	ids := []string{"ss", "ss"}
+	client.GetUsersByIDs(ctx, ids)
 	return user.NewGetUserOK().WithPayload(pbUserToV1User())
 }
 
@@ -250,44 +263,43 @@ func GetUsers(params user.GetUsersParams, principal *v1.Principal) middleware.Re
 }
 
 // Login 登录
-// func Login(params user.LoginParams) middleware.Responder {
-// 	ctx := params.HTTPRequest.Context()
-// 	c, err := monitor.NewGRPCClient()
-// 	if err != nil {
-// 		return Error(err)
-// 	}
-// 	defer c.Close()
-// 	verifyPass, err := c.User().VerifyPassword(ctx, &pb.VerifyPasswordRequest{
-// 		Username: params.Username,
-// 		Password: params.Password,
-// 	})
-// 	if err != nil {
-// 		return Error(err)
-// 	}
-// 	if verifyPass.Result == false {
-// 		return BadRequestError("登录名或密码错误")
-// 	}
-// 	reply, err := c.User().Login(ctx, &pb.LoginRequest{
-// 		Username: params.Username,
-// 		Passowrd: params.Password,
-// 	})
-// 	if err != nil {
-// 		return Error(err)
-// 	}
+func Login(params user.LoginParams) middleware.Responder {
+	fmt.Println("Login", params)
+	ctx := params.HTTPRequest.Context()
+	var dbType = config.GetString(config.DBType)
+	client, _ := database.New(database.Type(dbType))
+	verifyPass := client.Authenticate(ctx, params.Username, params.Password)
+	if !verifyPass {
+		return BadRequestError("用户名或密码错误")
+	}
+	now := time.Now()
+	expiresAt := now.Add(helper.AccessExpiresIn)
+	jwtClaims := helper.JwtClaims{
+		StandardClaims: jwt.StandardClaims{
+			Issuer:    "test.com",
+			NotBefore: now.Unix(),
+			ExpiresAt: expiresAt.Unix(),
+		},
+		UserClaims: helper.UserClaims{
+			ID:   params.Username,
+			Name: params.Password,
+		},
+	}
+	token, _ := helper.CreateToken(jwtClaims)
 
-// 	accessToken := reply.Token["access_token"]
-// 	tokenType := reply.Token["token_type"]
-// 	expiresIn := reply.Token["expires_in"]
-// 	expiresAt := reply.Token["expires_at"]
+	accessToken := token["access_token"]
+	tokenType := token["token_type"]
+	expiresIn := token["expires_in"]
+	expires := token["expires_at"]
 
-// 	payload := &v1.Token{
-// 		AccessToken: accessToken,
-// 		TokenType:   &tokenType,
-// 		ExpiresIn:   expiresIn,
-// 		ExpiresAt:   expiresAt,
-// 	}
-// 	return user.NewLoginOK().WithPayload(payload)
-// }
+	payload := &v1.Token{
+		AccessToken: accessToken,
+		TokenType:   &tokenType,
+		ExpiresIn:   expiresIn,
+		ExpiresAt:   expires,
+	}
+	return user.NewLoginOK().WithPayload(payload)
+}
 
 // Logout 登出
 func Logout(params user.LogoutParams, principal *v1.Principal) middleware.Responder {

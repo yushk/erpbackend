@@ -7,6 +7,7 @@ package device
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -14,16 +15,16 @@ import (
 )
 
 // UpdateDeviceHandlerFunc turns a function with the right signature into a update device handler
-type UpdateDeviceHandlerFunc func(UpdateDeviceParams, interface{}) middleware.Responder
+type UpdateDeviceHandlerFunc func(UpdateDeviceParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateDeviceHandlerFunc) Handle(params UpdateDeviceParams, principal interface{}) middleware.Responder {
+func (fn UpdateDeviceHandlerFunc) Handle(params UpdateDeviceParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateDeviceHandler interface for that can handle valid update device params
 type UpdateDeviceHandler interface {
-	Handle(UpdateDeviceParams, interface{}) middleware.Responder
+	Handle(UpdateDeviceParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateDevice creates a new http.Handler for the update device operation
@@ -58,9 +59,9 @@ func (o *UpdateDevice) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -7,21 +7,22 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetDeviceAlarmsHandlerFunc turns a function with the right signature into a get device alarms handler
-type GetDeviceAlarmsHandlerFunc func(GetDeviceAlarmsParams, interface{}) middleware.Responder
+type GetDeviceAlarmsHandlerFunc func(GetDeviceAlarmsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetDeviceAlarmsHandlerFunc) Handle(params GetDeviceAlarmsParams, principal interface{}) middleware.Responder {
+func (fn GetDeviceAlarmsHandlerFunc) Handle(params GetDeviceAlarmsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetDeviceAlarmsHandler interface for that can handle valid get device alarms params
 type GetDeviceAlarmsHandler interface {
-	Handle(GetDeviceAlarmsParams, interface{}) middleware.Responder
+	Handle(GetDeviceAlarmsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetDeviceAlarms creates a new http.Handler for the get device alarms operation
@@ -56,9 +57,9 @@ func (o *GetDeviceAlarms) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

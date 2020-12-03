@@ -11,19 +11,21 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // ConfirmEarlyAlarmHandlerFunc turns a function with the right signature into a confirm early alarm handler
-type ConfirmEarlyAlarmHandlerFunc func(ConfirmEarlyAlarmParams, interface{}) middleware.Responder
+type ConfirmEarlyAlarmHandlerFunc func(ConfirmEarlyAlarmParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ConfirmEarlyAlarmHandlerFunc) Handle(params ConfirmEarlyAlarmParams, principal interface{}) middleware.Responder {
+func (fn ConfirmEarlyAlarmHandlerFunc) Handle(params ConfirmEarlyAlarmParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ConfirmEarlyAlarmHandler interface for that can handle valid confirm early alarm params
 type ConfirmEarlyAlarmHandler interface {
-	Handle(ConfirmEarlyAlarmParams, interface{}) middleware.Responder
+	Handle(ConfirmEarlyAlarmParams, *v1.Principal) middleware.Responder
 }
 
 // NewConfirmEarlyAlarm creates a new http.Handler for the confirm early alarm operation
@@ -58,9 +60,9 @@ func (o *ConfirmEarlyAlarm) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

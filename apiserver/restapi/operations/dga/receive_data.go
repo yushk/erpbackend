@@ -7,21 +7,22 @@ package dga
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // ReceiveDataHandlerFunc turns a function with the right signature into a receive data handler
-type ReceiveDataHandlerFunc func(ReceiveDataParams, interface{}) middleware.Responder
+type ReceiveDataHandlerFunc func(ReceiveDataParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ReceiveDataHandlerFunc) Handle(params ReceiveDataParams, principal interface{}) middleware.Responder {
+func (fn ReceiveDataHandlerFunc) Handle(params ReceiveDataParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ReceiveDataHandler interface for that can handle valid receive data params
 type ReceiveDataHandler interface {
-	Handle(ReceiveDataParams, interface{}) middleware.Responder
+	Handle(ReceiveDataParams, *v1.Principal) middleware.Responder
 }
 
 // NewReceiveData creates a new http.Handler for the receive data operation
@@ -56,9 +57,9 @@ func (o *ReceiveData) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

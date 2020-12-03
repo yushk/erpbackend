@@ -4,7 +4,6 @@ package restapi
 
 import (
 	"crypto/tls"
-	"fmt"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -25,9 +24,10 @@ import (
 	"swagger/apiserver/restapi/operations/template"
 	"swagger/apiserver/restapi/operations/user"
 	"swagger/apiserver/server"
+	v1 "swagger/apiserver/v1"
 )
 
-//go:generate swagger generate server --target ../../apiserver --name Material --spec ../swagger/swagger.yaml --model-package v1 --principal interface{}
+//go:generate swagger generate server --target ../../apiserver --name Material --spec ../swagger/swagger.yaml --model-package v1 --principal v1.Principal
 
 func configureFlags(api *operations.MaterialAPI) {
 	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
@@ -53,23 +53,34 @@ func configureAPI(api *operations.MaterialAPI) http.Handler {
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
 
+	if api.OAuth2Auth == nil {
+		api.OAuth2Auth = func(token string, scopes []string) (*v1.Principal, error) {
+			return nil, errors.NotImplemented("oauth2 bearer auth (OAuth2) has not yet been implemented")
+		}
+	}
+
+	// Set your custom authorizer if needed. Default one is security.Authorized()
+	// Expected interface runtime.Authorizer
+	//
+	// Example:
+	// api.APIAuthorizer = security.Authorized()
 	if api.AnalysisAggregateHandler == nil {
-		api.AnalysisAggregateHandler = analysis.AggregateHandlerFunc(func(params analysis.AggregateParams, principal interface{}) middleware.Responder {
+		api.AnalysisAggregateHandler = analysis.AggregateHandlerFunc(func(params analysis.AggregateParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation analysis.Aggregate has not yet been implemented")
 		})
 	}
 	if api.UserChangeCurrentUserPasswordHandler == nil {
-		api.UserChangeCurrentUserPasswordHandler = user.ChangeCurrentUserPasswordHandlerFunc(func(params user.ChangeCurrentUserPasswordParams, principal interface{}) middleware.Responder {
+		api.UserChangeCurrentUserPasswordHandler = user.ChangeCurrentUserPasswordHandlerFunc(func(params user.ChangeCurrentUserPasswordParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.ChangeCurrentUserPassword has not yet been implemented")
 		})
 	}
 	if api.UserChangeUserPasswordHandler == nil {
-		api.UserChangeUserPasswordHandler = user.ChangeUserPasswordHandlerFunc(func(params user.ChangeUserPasswordParams, principal interface{}) middleware.Responder {
+		api.UserChangeUserPasswordHandler = user.ChangeUserPasswordHandlerFunc(func(params user.ChangeUserPasswordParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.ChangeUserPassword has not yet been implemented")
 		})
 	}
 	if api.DeviceCheckBasicsDevicePhaseHandler == nil {
-		api.DeviceCheckBasicsDevicePhaseHandler = device.CheckBasicsDevicePhaseHandlerFunc(func(params device.CheckBasicsDevicePhaseParams, principal interface{}) middleware.Responder {
+		api.DeviceCheckBasicsDevicePhaseHandler = device.CheckBasicsDevicePhaseHandlerFunc(func(params device.CheckBasicsDevicePhaseParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.CheckBasicsDevicePhase has not yet been implemented")
 		})
 	}
@@ -79,57 +90,55 @@ func configureAPI(api *operations.MaterialAPI) http.Handler {
 		})
 	}
 	if api.DgaConfirmEarlyAlarmHandler == nil {
-		api.DgaConfirmEarlyAlarmHandler = dga.ConfirmEarlyAlarmHandlerFunc(func(params dga.ConfirmEarlyAlarmParams, principal interface{}) middleware.Responder {
+		api.DgaConfirmEarlyAlarmHandler = dga.ConfirmEarlyAlarmHandlerFunc(func(params dga.ConfirmEarlyAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.ConfirmEarlyAlarm has not yet been implemented")
 		})
 	}
 	if api.AlarmConfirmIntelligenceAlarmHandler == nil {
-		api.AlarmConfirmIntelligenceAlarmHandler = alarm.ConfirmIntelligenceAlarmHandlerFunc(func(params alarm.ConfirmIntelligenceAlarmParams, principal interface{}) middleware.Responder {
+		api.AlarmConfirmIntelligenceAlarmHandler = alarm.ConfirmIntelligenceAlarmHandlerFunc(func(params alarm.ConfirmIntelligenceAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ConfirmIntelligenceAlarm has not yet been implemented")
 		})
 	}
 	if api.AlarmConfirmLimitAlarmHandler == nil {
-		api.AlarmConfirmLimitAlarmHandler = alarm.ConfirmLimitAlarmHandlerFunc(func(params alarm.ConfirmLimitAlarmParams, principal interface{}) middleware.Responder {
+		api.AlarmConfirmLimitAlarmHandler = alarm.ConfirmLimitAlarmHandlerFunc(func(params alarm.ConfirmLimitAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ConfirmLimitAlarm has not yet been implemented")
 		})
 	}
 	if api.AlarmConfirmTransferAlarmHandler == nil {
-		api.AlarmConfirmTransferAlarmHandler = alarm.ConfirmTransferAlarmHandlerFunc(func(params alarm.ConfirmTransferAlarmParams, principal interface{}) middleware.Responder {
+		api.AlarmConfirmTransferAlarmHandler = alarm.ConfirmTransferAlarmHandlerFunc(func(params alarm.ConfirmTransferAlarmParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ConfirmTransferAlarm has not yet been implemented")
 		})
 	}
 	if api.ConfigControlAlarmTaskHandler == nil {
-		api.ConfigControlAlarmTaskHandler = config.ControlAlarmTaskHandlerFunc(func(params config.ControlAlarmTaskParams, principal interface{}) middleware.Responder {
+		api.ConfigControlAlarmTaskHandler = config.ControlAlarmTaskHandlerFunc(func(params config.ControlAlarmTaskParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.ControlAlarmTask has not yet been implemented")
 		})
 	}
 	if api.ConfigCreateCleaningConfigsHandler == nil {
-		api.ConfigCreateCleaningConfigsHandler = config.CreateCleaningConfigsHandlerFunc(func(params config.CreateCleaningConfigsParams, principal interface{}) middleware.Responder {
+		api.ConfigCreateCleaningConfigsHandler = config.CreateCleaningConfigsHandlerFunc(func(params config.CreateCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.CreateCleaningConfigs has not yet been implemented")
 		})
 	}
 	if api.DeviceCreateDeviceHandler == nil {
-		api.DeviceCreateDeviceHandler = device.CreateDeviceHandlerFunc(func(params device.CreateDeviceParams, principal interface{}) middleware.Responder {
+		api.DeviceCreateDeviceHandler = device.CreateDeviceHandlerFunc(func(params device.CreateDeviceParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.CreateDevice has not yet been implemented")
 		})
 	}
-	if api.UserCreateUserHandler == nil {
-		api.UserCreateUserHandler = user.CreateUserHandlerFunc(func(params user.CreateUserParams, principal interface{}) middleware.Responder {
-			return middleware.NotImplemented("operation user.CreateUser has not yet been implemented")
-		})
-	}
+	api.UserCreateUserHandler = user.CreateUserHandlerFunc(func(params user.CreateUserParams, principal *v1.Principal) middleware.Responder {
+		return server.CreateUser(params, principal)
+	})
 	if api.ConfigDeleteCleaningConfigsHandler == nil {
-		api.ConfigDeleteCleaningConfigsHandler = config.DeleteCleaningConfigsHandlerFunc(func(params config.DeleteCleaningConfigsParams, principal interface{}) middleware.Responder {
+		api.ConfigDeleteCleaningConfigsHandler = config.DeleteCleaningConfigsHandlerFunc(func(params config.DeleteCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.DeleteCleaningConfigs has not yet been implemented")
 		})
 	}
 	if api.DeviceDeleteDeviceHandler == nil {
-		api.DeviceDeleteDeviceHandler = device.DeleteDeviceHandlerFunc(func(params device.DeleteDeviceParams, principal interface{}) middleware.Responder {
+		api.DeviceDeleteDeviceHandler = device.DeleteDeviceHandlerFunc(func(params device.DeleteDeviceParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.DeleteDevice has not yet been implemented")
 		})
 	}
 	if api.UserDeleteUserHandler == nil {
-		api.UserDeleteUserHandler = user.DeleteUserHandlerFunc(func(params user.DeleteUserParams, principal interface{}) middleware.Responder {
+		api.UserDeleteUserHandler = user.DeleteUserHandlerFunc(func(params user.DeleteUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.DeleteUser has not yet been implemented")
 		})
 	}
@@ -139,157 +148,153 @@ func configureAPI(api *operations.MaterialAPI) http.Handler {
 		})
 	}
 	if api.ConfigGetAlarmConfigsHandler == nil {
-		api.ConfigGetAlarmConfigsHandler = config.GetAlarmConfigsHandlerFunc(func(params config.GetAlarmConfigsParams, principal interface{}) middleware.Responder {
+		api.ConfigGetAlarmConfigsHandler = config.GetAlarmConfigsHandlerFunc(func(params config.GetAlarmConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.GetAlarmConfigs has not yet been implemented")
 		})
 	}
 	if api.DeviceGetBasicsDevicesHandler == nil {
-		api.DeviceGetBasicsDevicesHandler = device.GetBasicsDevicesHandlerFunc(func(params device.GetBasicsDevicesParams, principal interface{}) middleware.Responder {
+		api.DeviceGetBasicsDevicesHandler = device.GetBasicsDevicesHandlerFunc(func(params device.GetBasicsDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.GetBasicsDevices has not yet been implemented")
 		})
 	}
 	if api.ConfigGetCleaningConfigsHandler == nil {
-		api.ConfigGetCleaningConfigsHandler = config.GetCleaningConfigsHandlerFunc(func(params config.GetCleaningConfigsParams, principal interface{}) middleware.Responder {
+		api.ConfigGetCleaningConfigsHandler = config.GetCleaningConfigsHandlerFunc(func(params config.GetCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.GetCleaningConfigs has not yet been implemented")
 		})
 	}
 	if api.AlarmGetDeviceAlarmsHandler == nil {
-		api.AlarmGetDeviceAlarmsHandler = alarm.GetDeviceAlarmsHandlerFunc(func(params alarm.GetDeviceAlarmsParams, principal interface{}) middleware.Responder {
+		api.AlarmGetDeviceAlarmsHandler = alarm.GetDeviceAlarmsHandlerFunc(func(params alarm.GetDeviceAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetDeviceAlarms has not yet been implemented")
 		})
 	}
 	if api.DataGetDeviceChartsHandler == nil {
-		api.DataGetDeviceChartsHandler = data.GetDeviceChartsHandlerFunc(func(params data.GetDeviceChartsParams, principal interface{}) middleware.Responder {
+		api.DataGetDeviceChartsHandler = data.GetDeviceChartsHandlerFunc(func(params data.GetDeviceChartsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetDeviceCharts has not yet been implemented")
 		})
 	}
 	if api.TemplateGetDeviceFieldInfosHandler == nil {
-		api.TemplateGetDeviceFieldInfosHandler = template.GetDeviceFieldInfosHandlerFunc(func(params template.GetDeviceFieldInfosParams, principal interface{}) middleware.Responder {
+		api.TemplateGetDeviceFieldInfosHandler = template.GetDeviceFieldInfosHandlerFunc(func(params template.GetDeviceFieldInfosParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.GetDeviceFieldInfos has not yet been implemented")
 		})
 	}
 	if api.TemplateGetDeviceTemplateInfosHandler == nil {
-		api.TemplateGetDeviceTemplateInfosHandler = template.GetDeviceTemplateInfosHandlerFunc(func(params template.GetDeviceTemplateInfosParams, principal interface{}) middleware.Responder {
+		api.TemplateGetDeviceTemplateInfosHandler = template.GetDeviceTemplateInfosHandlerFunc(func(params template.GetDeviceTemplateInfosParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.GetDeviceTemplateInfos has not yet been implemented")
 		})
 	}
 	if api.DataGetDeviceValuesHandler == nil {
-		api.DataGetDeviceValuesHandler = data.GetDeviceValuesHandlerFunc(func(params data.GetDeviceValuesParams, principal interface{}) middleware.Responder {
+		api.DataGetDeviceValuesHandler = data.GetDeviceValuesHandlerFunc(func(params data.GetDeviceValuesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetDeviceValues has not yet been implemented")
 		})
 	}
 	if api.DeviceGetDevicesHandler == nil {
-		api.DeviceGetDevicesHandler = device.GetDevicesHandlerFunc(func(params device.GetDevicesParams, principal interface{}) middleware.Responder {
+		api.DeviceGetDevicesHandler = device.GetDevicesHandlerFunc(func(params device.GetDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.GetDevices has not yet been implemented")
 		})
 	}
 	if api.DgaGetEarlyAlarmConfigHandler == nil {
-		api.DgaGetEarlyAlarmConfigHandler = dga.GetEarlyAlarmConfigHandlerFunc(func(params dga.GetEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.DgaGetEarlyAlarmConfigHandler = dga.GetEarlyAlarmConfigHandlerFunc(func(params dga.GetEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.GetEarlyAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.DgaGetEarlyAlarmsHandler == nil {
-		api.DgaGetEarlyAlarmsHandler = dga.GetEarlyAlarmsHandlerFunc(func(params dga.GetEarlyAlarmsParams, principal interface{}) middleware.Responder {
+		api.DgaGetEarlyAlarmsHandler = dga.GetEarlyAlarmsHandlerFunc(func(params dga.GetEarlyAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.GetEarlyAlarms has not yet been implemented")
 		})
 	}
 	if api.DgaGetEarlyHistoryAlarmsHandler == nil {
-		api.DgaGetEarlyHistoryAlarmsHandler = dga.GetEarlyHistoryAlarmsHandlerFunc(func(params dga.GetEarlyHistoryAlarmsParams, principal interface{}) middleware.Responder {
+		api.DgaGetEarlyHistoryAlarmsHandler = dga.GetEarlyHistoryAlarmsHandlerFunc(func(params dga.GetEarlyHistoryAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.GetEarlyHistoryAlarms has not yet been implemented")
 		})
 	}
 	if api.AlarmGetHistoryLimitAlarmsHandler == nil {
-		api.AlarmGetHistoryLimitAlarmsHandler = alarm.GetHistoryLimitAlarmsHandlerFunc(func(params alarm.GetHistoryLimitAlarmsParams, principal interface{}) middleware.Responder {
+		api.AlarmGetHistoryLimitAlarmsHandler = alarm.GetHistoryLimitAlarmsHandlerFunc(func(params alarm.GetHistoryLimitAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetHistoryLimitAlarms has not yet been implemented")
 		})
 	}
 	if api.AlarmGetHistoryTransferAlarmsHandler == nil {
-		api.AlarmGetHistoryTransferAlarmsHandler = alarm.GetHistoryTransferAlarmsHandlerFunc(func(params alarm.GetHistoryTransferAlarmsParams, principal interface{}) middleware.Responder {
+		api.AlarmGetHistoryTransferAlarmsHandler = alarm.GetHistoryTransferAlarmsHandlerFunc(func(params alarm.GetHistoryTransferAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetHistoryTransferAlarms has not yet been implemented")
 		})
 	}
 	if api.AlarmGetIntelligenceAlarmsHandler == nil {
-		api.AlarmGetIntelligenceAlarmsHandler = alarm.GetIntelligenceAlarmsHandlerFunc(func(params alarm.GetIntelligenceAlarmsParams, principal interface{}) middleware.Responder {
+		api.AlarmGetIntelligenceAlarmsHandler = alarm.GetIntelligenceAlarmsHandlerFunc(func(params alarm.GetIntelligenceAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetIntelligenceAlarms has not yet been implemented")
 		})
 	}
 	if api.AlarmGetLimitAlarmConfigHandler == nil {
-		api.AlarmGetLimitAlarmConfigHandler = alarm.GetLimitAlarmConfigHandlerFunc(func(params alarm.GetLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.AlarmGetLimitAlarmConfigHandler = alarm.GetLimitAlarmConfigHandlerFunc(func(params alarm.GetLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetLimitAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.AlarmGetLimitAlarmsHandler == nil {
-		api.AlarmGetLimitAlarmsHandler = alarm.GetLimitAlarmsHandlerFunc(func(params alarm.GetLimitAlarmsParams, principal interface{}) middleware.Responder {
+		api.AlarmGetLimitAlarmsHandler = alarm.GetLimitAlarmsHandlerFunc(func(params alarm.GetLimitAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetLimitAlarms has not yet been implemented")
 		})
 	}
 	if api.LogrGetLogsHandler == nil {
-		api.LogrGetLogsHandler = logr.GetLogsHandlerFunc(func(params logr.GetLogsParams, principal interface{}) middleware.Responder {
+		api.LogrGetLogsHandler = logr.GetLogsHandlerFunc(func(params logr.GetLogsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation logr.GetLogs has not yet been implemented")
 		})
 	}
 	if api.DataGetLongitudinalChartsHandler == nil {
-		api.DataGetLongitudinalChartsHandler = data.GetLongitudinalChartsHandlerFunc(func(params data.GetLongitudinalChartsParams, principal interface{}) middleware.Responder {
+		api.DataGetLongitudinalChartsHandler = data.GetLongitudinalChartsHandlerFunc(func(params data.GetLongitudinalChartsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetLongitudinalCharts has not yet been implemented")
 		})
 	}
 	if api.DeviceGetSimilarTestingDevicesHandler == nil {
-		api.DeviceGetSimilarTestingDevicesHandler = device.GetSimilarTestingDevicesHandlerFunc(func(params device.GetSimilarTestingDevicesParams, principal interface{}) middleware.Responder {
+		api.DeviceGetSimilarTestingDevicesHandler = device.GetSimilarTestingDevicesHandlerFunc(func(params device.GetSimilarTestingDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.GetSimilarTestingDevices has not yet been implemented")
 		})
 	}
 	if api.ConfigGetTransferAlarmConfigHandler == nil {
-		api.ConfigGetTransferAlarmConfigHandler = config.GetTransferAlarmConfigHandlerFunc(func(params config.GetTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.ConfigGetTransferAlarmConfigHandler = config.GetTransferAlarmConfigHandlerFunc(func(params config.GetTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.GetTransferAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.AlarmGetTransferAlarmsHandler == nil {
-		api.AlarmGetTransferAlarmsHandler = alarm.GetTransferAlarmsHandlerFunc(func(params alarm.GetTransferAlarmsParams, principal interface{}) middleware.Responder {
+		api.AlarmGetTransferAlarmsHandler = alarm.GetTransferAlarmsHandlerFunc(func(params alarm.GetTransferAlarmsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.GetTransferAlarms has not yet been implemented")
 		})
 	}
 	if api.DataGetTransverseChartsHandler == nil {
-		api.DataGetTransverseChartsHandler = data.GetTransverseChartsHandlerFunc(func(params data.GetTransverseChartsParams, principal interface{}) middleware.Responder {
+		api.DataGetTransverseChartsHandler = data.GetTransverseChartsHandlerFunc(func(params data.GetTransverseChartsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation data.GetTransverseCharts has not yet been implemented")
 		})
 	}
 	if api.UserGetUserHandler == nil {
-		api.UserGetUserHandler = user.GetUserHandlerFunc(func(params user.GetUserParams, principal interface{}) middleware.Responder {
+		api.UserGetUserHandler = user.GetUserHandlerFunc(func(params user.GetUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.GetUser has not yet been implemented")
 		})
 	}
-	if api.UserGetUserInfoHandler == nil {
-		api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams, principal interface{}) middleware.Responder {
-			return server.GetUserInfo(params, principal)
-		})
-	}
+	api.UserGetUserInfoHandler = user.GetUserInfoHandlerFunc(func(params user.GetUserInfoParams, principal *v1.Principal) middleware.Responder {
+		return server.GetUserInfo(params, principal)
+	})
 	if api.UserGetUsersHandler == nil {
-		api.UserGetUsersHandler = user.GetUsersHandlerFunc(func(params user.GetUsersParams, principal interface{}) middleware.Responder {
+		api.UserGetUsersHandler = user.GetUsersHandlerFunc(func(params user.GetUsersParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.GetUsers has not yet been implemented")
 		})
 	}
-	if api.UserLoginHandler == nil {
-		api.UserLoginHandler = user.LoginHandlerFunc(func(params user.LoginParams) middleware.Responder {
-			return middleware.NotImplemented("operation user.Login has not yet been implemented")
-		})
-	}
+	api.UserLoginHandler = user.LoginHandlerFunc(func(params user.LoginParams) middleware.Responder {
+		return server.Login(params)
+	})
 	if api.UserLogoutHandler == nil {
-		api.UserLogoutHandler = user.LogoutHandlerFunc(func(params user.LogoutParams, principal interface{}) middleware.Responder {
+		api.UserLogoutHandler = user.LogoutHandlerFunc(func(params user.LogoutParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.Logout has not yet been implemented")
 		})
 	}
 	if api.DgaModifyEarlyAlarmConfigHandler == nil {
-		api.DgaModifyEarlyAlarmConfigHandler = dga.ModifyEarlyAlarmConfigHandlerFunc(func(params dga.ModifyEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.DgaModifyEarlyAlarmConfigHandler = dga.ModifyEarlyAlarmConfigHandlerFunc(func(params dga.ModifyEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.ModifyEarlyAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.AlarmModifyLimitAlarmConfigHandler == nil {
-		api.AlarmModifyLimitAlarmConfigHandler = alarm.ModifyLimitAlarmConfigHandlerFunc(func(params alarm.ModifyLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.AlarmModifyLimitAlarmConfigHandler = alarm.ModifyLimitAlarmConfigHandlerFunc(func(params alarm.ModifyLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.ModifyLimitAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.ConfigModifyTransferAlarmConfigHandler == nil {
-		api.ConfigModifyTransferAlarmConfigHandler = config.ModifyTransferAlarmConfigHandlerFunc(func(params config.ModifyTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.ConfigModifyTransferAlarmConfigHandler = config.ModifyTransferAlarmConfigHandlerFunc(func(params config.ModifyTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.ModifyTransferAlarmConfig has not yet been implemented")
 		})
 	}
@@ -299,7 +304,7 @@ func configureAPI(api *operations.MaterialAPI) http.Handler {
 		})
 	}
 	if api.DgaReceiveDataHandler == nil {
-		api.DgaReceiveDataHandler = dga.ReceiveDataHandlerFunc(func(params dga.ReceiveDataParams, principal interface{}) middleware.Responder {
+		api.DgaReceiveDataHandler = dga.ReceiveDataHandlerFunc(func(params dga.ReceiveDataParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.ReceiveData has not yet been implemented")
 		})
 	}
@@ -309,66 +314,65 @@ func configureAPI(api *operations.MaterialAPI) http.Handler {
 		})
 	}
 	if api.TemplateSynchronizeDeviceTemplateInfoHandler == nil {
-		api.TemplateSynchronizeDeviceTemplateInfoHandler = template.SynchronizeDeviceTemplateInfoHandlerFunc(func(params template.SynchronizeDeviceTemplateInfoParams, principal interface{}) middleware.Responder {
+		api.TemplateSynchronizeDeviceTemplateInfoHandler = template.SynchronizeDeviceTemplateInfoHandlerFunc(func(params template.SynchronizeDeviceTemplateInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.SynchronizeDeviceTemplateInfo has not yet been implemented")
 		})
 	}
 	api.OauthTokenHandler = oauth.TokenHandlerFunc(func(params oauth.TokenParams) middleware.Responder {
-		fmt.Println("ssssssssssssssssss")
 		return server.Token(params)
 	})
 	if api.ConfigUpdateAlarmConfigsHandler == nil {
-		api.ConfigUpdateAlarmConfigsHandler = config.UpdateAlarmConfigsHandlerFunc(func(params config.UpdateAlarmConfigsParams, principal interface{}) middleware.Responder {
+		api.ConfigUpdateAlarmConfigsHandler = config.UpdateAlarmConfigsHandlerFunc(func(params config.UpdateAlarmConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateAlarmConfigs has not yet been implemented")
 		})
 	}
 	if api.ConfigUpdateCleaningActiveRuleHandler == nil {
-		api.ConfigUpdateCleaningActiveRuleHandler = config.UpdateCleaningActiveRuleHandlerFunc(func(params config.UpdateCleaningActiveRuleParams, principal interface{}) middleware.Responder {
+		api.ConfigUpdateCleaningActiveRuleHandler = config.UpdateCleaningActiveRuleHandlerFunc(func(params config.UpdateCleaningActiveRuleParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateCleaningActiveRule has not yet been implemented")
 		})
 	}
 	if api.ConfigUpdateCleaningConfigsHandler == nil {
-		api.ConfigUpdateCleaningConfigsHandler = config.UpdateCleaningConfigsHandlerFunc(func(params config.UpdateCleaningConfigsParams, principal interface{}) middleware.Responder {
+		api.ConfigUpdateCleaningConfigsHandler = config.UpdateCleaningConfigsHandlerFunc(func(params config.UpdateCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateCleaningConfigs has not yet been implemented")
 		})
 	}
 	if api.DeviceUpdateDeviceHandler == nil {
-		api.DeviceUpdateDeviceHandler = device.UpdateDeviceHandlerFunc(func(params device.UpdateDeviceParams, principal interface{}) middleware.Responder {
+		api.DeviceUpdateDeviceHandler = device.UpdateDeviceHandlerFunc(func(params device.UpdateDeviceParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.UpdateDevice has not yet been implemented")
 		})
 	}
 	if api.TemplateUpdateDeviceFieldInfoHandler == nil {
-		api.TemplateUpdateDeviceFieldInfoHandler = template.UpdateDeviceFieldInfoHandlerFunc(func(params template.UpdateDeviceFieldInfoParams, principal interface{}) middleware.Responder {
+		api.TemplateUpdateDeviceFieldInfoHandler = template.UpdateDeviceFieldInfoHandlerFunc(func(params template.UpdateDeviceFieldInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.UpdateDeviceFieldInfo has not yet been implemented")
 		})
 	}
 	if api.TemplateUpdateDeviceProfileInfoHandler == nil {
-		api.TemplateUpdateDeviceProfileInfoHandler = template.UpdateDeviceProfileInfoHandlerFunc(func(params template.UpdateDeviceProfileInfoParams, principal interface{}) middleware.Responder {
+		api.TemplateUpdateDeviceProfileInfoHandler = template.UpdateDeviceProfileInfoHandlerFunc(func(params template.UpdateDeviceProfileInfoParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation template.UpdateDeviceProfileInfo has not yet been implemented")
 		})
 	}
 	if api.DgaUpdateEarlyAlarmConfigHandler == nil {
-		api.DgaUpdateEarlyAlarmConfigHandler = dga.UpdateEarlyAlarmConfigHandlerFunc(func(params dga.UpdateEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.DgaUpdateEarlyAlarmConfigHandler = dga.UpdateEarlyAlarmConfigHandlerFunc(func(params dga.UpdateEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation dga.UpdateEarlyAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.AlarmUpdateLimitAlarmConfigHandler == nil {
-		api.AlarmUpdateLimitAlarmConfigHandler = alarm.UpdateLimitAlarmConfigHandlerFunc(func(params alarm.UpdateLimitAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.AlarmUpdateLimitAlarmConfigHandler = alarm.UpdateLimitAlarmConfigHandlerFunc(func(params alarm.UpdateLimitAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation alarm.UpdateLimitAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.ConfigUpdateTransferAlarmConfigHandler == nil {
-		api.ConfigUpdateTransferAlarmConfigHandler = config.UpdateTransferAlarmConfigHandlerFunc(func(params config.UpdateTransferAlarmConfigParams, principal interface{}) middleware.Responder {
+		api.ConfigUpdateTransferAlarmConfigHandler = config.UpdateTransferAlarmConfigHandlerFunc(func(params config.UpdateTransferAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation config.UpdateTransferAlarmConfig has not yet been implemented")
 		})
 	}
 	if api.UserUpdateUserHandler == nil {
-		api.UserUpdateUserHandler = user.UpdateUserHandlerFunc(func(params user.UpdateUserParams, principal interface{}) middleware.Responder {
+		api.UserUpdateUserHandler = user.UpdateUserHandlerFunc(func(params user.UpdateUserParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation user.UpdateUser has not yet been implemented")
 		})
 	}
 	if api.DeviceUploadDevicesHandler == nil {
-		api.DeviceUploadDevicesHandler = device.UploadDevicesHandlerFunc(func(params device.UploadDevicesParams, principal interface{}) middleware.Responder {
+		api.DeviceUploadDevicesHandler = device.UploadDevicesHandlerFunc(func(params device.UploadDevicesParams, principal *v1.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation device.UploadDevices has not yet been implemented")
 		})
 	}

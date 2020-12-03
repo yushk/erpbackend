@@ -7,21 +7,22 @@ package user
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // LogoutHandlerFunc turns a function with the right signature into a logout handler
-type LogoutHandlerFunc func(LogoutParams, interface{}) middleware.Responder
+type LogoutHandlerFunc func(LogoutParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn LogoutHandlerFunc) Handle(params LogoutParams, principal interface{}) middleware.Responder {
+func (fn LogoutHandlerFunc) Handle(params LogoutParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // LogoutHandler interface for that can handle valid logout params
 type LogoutHandler interface {
-	Handle(LogoutParams, interface{}) middleware.Responder
+	Handle(LogoutParams, *v1.Principal) middleware.Responder
 }
 
 // NewLogout creates a new http.Handler for the logout operation
@@ -56,9 +57,9 @@ func (o *Logout) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

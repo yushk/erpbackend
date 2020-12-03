@@ -16,16 +16,16 @@ import (
 )
 
 // UpdateCleaningConfigsHandlerFunc turns a function with the right signature into a update cleaning configs handler
-type UpdateCleaningConfigsHandlerFunc func(UpdateCleaningConfigsParams, interface{}) middleware.Responder
+type UpdateCleaningConfigsHandlerFunc func(UpdateCleaningConfigsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateCleaningConfigsHandlerFunc) Handle(params UpdateCleaningConfigsParams, principal interface{}) middleware.Responder {
+func (fn UpdateCleaningConfigsHandlerFunc) Handle(params UpdateCleaningConfigsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateCleaningConfigsHandler interface for that can handle valid update cleaning configs params
 type UpdateCleaningConfigsHandler interface {
-	Handle(UpdateCleaningConfigsParams, interface{}) middleware.Responder
+	Handle(UpdateCleaningConfigsParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateCleaningConfigs creates a new http.Handler for the update cleaning configs operation
@@ -60,9 +60,9 @@ func (o *UpdateCleaningConfigs) ServeHTTP(rw http.ResponseWriter, r *http.Reques
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

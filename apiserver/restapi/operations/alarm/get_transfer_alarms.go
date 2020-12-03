@@ -7,21 +7,22 @@ package alarm
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetTransferAlarmsHandlerFunc turns a function with the right signature into a get transfer alarms handler
-type GetTransferAlarmsHandlerFunc func(GetTransferAlarmsParams, interface{}) middleware.Responder
+type GetTransferAlarmsHandlerFunc func(GetTransferAlarmsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetTransferAlarmsHandlerFunc) Handle(params GetTransferAlarmsParams, principal interface{}) middleware.Responder {
+func (fn GetTransferAlarmsHandlerFunc) Handle(params GetTransferAlarmsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetTransferAlarmsHandler interface for that can handle valid get transfer alarms params
 type GetTransferAlarmsHandler interface {
-	Handle(GetTransferAlarmsParams, interface{}) middleware.Responder
+	Handle(GetTransferAlarmsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetTransferAlarms creates a new http.Handler for the get transfer alarms operation
@@ -56,9 +57,9 @@ func (o *GetTransferAlarms) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

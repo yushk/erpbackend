@@ -9,19 +9,21 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // ChangeCurrentUserPasswordHandlerFunc turns a function with the right signature into a change current user password handler
-type ChangeCurrentUserPasswordHandlerFunc func(ChangeCurrentUserPasswordParams, interface{}) middleware.Responder
+type ChangeCurrentUserPasswordHandlerFunc func(ChangeCurrentUserPasswordParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn ChangeCurrentUserPasswordHandlerFunc) Handle(params ChangeCurrentUserPasswordParams, principal interface{}) middleware.Responder {
+func (fn ChangeCurrentUserPasswordHandlerFunc) Handle(params ChangeCurrentUserPasswordParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // ChangeCurrentUserPasswordHandler interface for that can handle valid change current user password params
 type ChangeCurrentUserPasswordHandler interface {
-	Handle(ChangeCurrentUserPasswordParams, interface{}) middleware.Responder
+	Handle(ChangeCurrentUserPasswordParams, *v1.Principal) middleware.Responder
 }
 
 // NewChangeCurrentUserPassword creates a new http.Handler for the change current user password operation
@@ -56,9 +58,9 @@ func (o *ChangeCurrentUserPassword) ServeHTTP(rw http.ResponseWriter, r *http.Re
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

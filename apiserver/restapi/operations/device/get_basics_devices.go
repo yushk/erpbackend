@@ -7,21 +7,22 @@ package device
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // GetBasicsDevicesHandlerFunc turns a function with the right signature into a get basics devices handler
-type GetBasicsDevicesHandlerFunc func(GetBasicsDevicesParams, interface{}) middleware.Responder
+type GetBasicsDevicesHandlerFunc func(GetBasicsDevicesParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetBasicsDevicesHandlerFunc) Handle(params GetBasicsDevicesParams, principal interface{}) middleware.Responder {
+func (fn GetBasicsDevicesHandlerFunc) Handle(params GetBasicsDevicesParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetBasicsDevicesHandler interface for that can handle valid get basics devices params
 type GetBasicsDevicesHandler interface {
-	Handle(GetBasicsDevicesParams, interface{}) middleware.Responder
+	Handle(GetBasicsDevicesParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetBasicsDevices creates a new http.Handler for the get basics devices operation
@@ -56,9 +57,9 @@ func (o *GetBasicsDevices) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -7,21 +7,22 @@ package dga
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // UpdateEarlyAlarmConfigHandlerFunc turns a function with the right signature into a update early alarm config handler
-type UpdateEarlyAlarmConfigHandlerFunc func(UpdateEarlyAlarmConfigParams, interface{}) middleware.Responder
+type UpdateEarlyAlarmConfigHandlerFunc func(UpdateEarlyAlarmConfigParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn UpdateEarlyAlarmConfigHandlerFunc) Handle(params UpdateEarlyAlarmConfigParams, principal interface{}) middleware.Responder {
+func (fn UpdateEarlyAlarmConfigHandlerFunc) Handle(params UpdateEarlyAlarmConfigParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // UpdateEarlyAlarmConfigHandler interface for that can handle valid update early alarm config params
 type UpdateEarlyAlarmConfigHandler interface {
-	Handle(UpdateEarlyAlarmConfigParams, interface{}) middleware.Responder
+	Handle(UpdateEarlyAlarmConfigParams, *v1.Principal) middleware.Responder
 }
 
 // NewUpdateEarlyAlarmConfig creates a new http.Handler for the update early alarm config operation
@@ -56,9 +57,9 @@ func (o *UpdateEarlyAlarmConfig) ServeHTTP(rw http.ResponseWriter, r *http.Reque
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

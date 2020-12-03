@@ -11,7 +11,9 @@ require (
 	github.com/go-openapi/strfmt v0.19.11
 	github.com/go-openapi/swag v0.19.12
 	github.com/go-openapi/validate v0.19.15
+	github.com/grpc-ecosystem/grpc-gateway v1.9.0
 	github.com/jessevdk/go-flags v1.4.0
+	github.com/rs/xid v1.2.1
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/viper v1.7.1
 	go.mongodb.org/mongo-driver v1.4.3

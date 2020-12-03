@@ -5,7 +5,7 @@
 //  智慧变电站边缘计算平台系统API
 //  Schemes:
 //    http
-//  Host: localhost:8080
+//  Host: localhost:8765
 //  BasePath: /api
 //  Version: 1.0.0
 //  License: MIT License https://mit-license.org/

@@ -9,19 +9,21 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // GetDeviceChartsHandlerFunc turns a function with the right signature into a get device charts handler
-type GetDeviceChartsHandlerFunc func(GetDeviceChartsParams, interface{}) middleware.Responder
+type GetDeviceChartsHandlerFunc func(GetDeviceChartsParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetDeviceChartsHandlerFunc) Handle(params GetDeviceChartsParams, principal interface{}) middleware.Responder {
+func (fn GetDeviceChartsHandlerFunc) Handle(params GetDeviceChartsParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // GetDeviceChartsHandler interface for that can handle valid get device charts params
 type GetDeviceChartsHandler interface {
-	Handle(GetDeviceChartsParams, interface{}) middleware.Responder
+	Handle(GetDeviceChartsParams, *v1.Principal) middleware.Responder
 }
 
 // NewGetDeviceCharts creates a new http.Handler for the get device charts operation
@@ -56,9 +58,9 @@ func (o *GetDeviceCharts) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

@@ -9,19 +9,21 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+
+	v1 "swagger/apiserver/v1"
 )
 
 // AggregateHandlerFunc turns a function with the right signature into a aggregate handler
-type AggregateHandlerFunc func(AggregateParams, interface{}) middleware.Responder
+type AggregateHandlerFunc func(AggregateParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn AggregateHandlerFunc) Handle(params AggregateParams, principal interface{}) middleware.Responder {
+func (fn AggregateHandlerFunc) Handle(params AggregateParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // AggregateHandler interface for that can handle valid aggregate params
 type AggregateHandler interface {
-	Handle(AggregateParams, interface{}) middleware.Responder
+	Handle(AggregateParams, *v1.Principal) middleware.Responder
 }
 
 // NewAggregate creates a new http.Handler for the aggregate operation
@@ -56,9 +58,9 @@ func (o *Aggregate) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params

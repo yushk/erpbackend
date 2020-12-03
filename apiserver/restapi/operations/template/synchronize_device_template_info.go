@@ -7,21 +7,22 @@ package template
 
 import (
 	"net/http"
+	v1 "swagger/apiserver/v1"
 
 	"github.com/go-openapi/runtime/middleware"
 )
 
 // SynchronizeDeviceTemplateInfoHandlerFunc turns a function with the right signature into a synchronize device template info handler
-type SynchronizeDeviceTemplateInfoHandlerFunc func(SynchronizeDeviceTemplateInfoParams, interface{}) middleware.Responder
+type SynchronizeDeviceTemplateInfoHandlerFunc func(SynchronizeDeviceTemplateInfoParams, *v1.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn SynchronizeDeviceTemplateInfoHandlerFunc) Handle(params SynchronizeDeviceTemplateInfoParams, principal interface{}) middleware.Responder {
+func (fn SynchronizeDeviceTemplateInfoHandlerFunc) Handle(params SynchronizeDeviceTemplateInfoParams, principal *v1.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
 // SynchronizeDeviceTemplateInfoHandler interface for that can handle valid synchronize device template info params
 type SynchronizeDeviceTemplateInfoHandler interface {
-	Handle(SynchronizeDeviceTemplateInfoParams, interface{}) middleware.Responder
+	Handle(SynchronizeDeviceTemplateInfoParams, *v1.Principal) middleware.Responder
 }
 
 // NewSynchronizeDeviceTemplateInfo creates a new http.Handler for the synchronize device template info operation
@@ -56,9 +57,9 @@ func (o *SynchronizeDeviceTemplateInfo) ServeHTTP(rw http.ResponseWriter, r *htt
 	if aCtx != nil {
 		r = aCtx
 	}
-	var principal interface{}
+	var principal *v1.Principal
 	if uprinc != nil {
-		principal = uprinc
+		principal = uprinc.(*v1.Principal) // this is really a v1.Principal, I promise
 	}
 
 	if err := o.Context.BindValidRequest(r, route, &Params); err != nil { // bind params
