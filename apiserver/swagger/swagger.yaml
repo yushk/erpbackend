@@ -1,0 +1,2904 @@
+swagger: '2.0'
+info:
+  description: 智慧变电站边缘计算平台系统API
+  version: 1.0.0
+  title: 智慧变电站边缘计算平台系统
+  contact:
+    email: wind.kaisa@gmail.com
+  license:
+    name: MIT License
+    url: 'https://mit-license.org/'
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+host: 'localhost:8765'
+basePath: /api
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  OAuth2:
+    type: oauth2
+    flow: password
+    tokenUrl: 'http://localhost:8765/api/v1/oauth/token'
+    scopes:
+      user: 普通用户
+      admin: 管理员
+      root: 超级管理员
+security:
+  - OAuth2:
+      - user
+tags:
+  - name: oauth
+    description: 权限认证
+  - name: user
+    description: 用户管理
+  - name: device
+    description: 设备管理
+  - name: template
+    description: 模版管理
+  - name: data
+    description: 数据查询
+  - name: analysis
+    description: 统计分析
+  - name: config
+    description: 系统配置
+  - name: alarm
+    description: 告警管理
+  - name: logr
+    description: 日志查询
+  - name: system
+    description: 系统接口
+  - name: dga
+    description: 预警分析
+  - name: file
+    description: 下载文件
+schemes:
+  - http
+paths:
+  /v1/oauth/token:
+    post:
+      tags:
+        - oauth
+      summary: 权限认证
+      description: 权限认证
+      operationId: Token
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          in: formData
+          description: 用户名
+          type: string
+          required: true
+        - name: password
+          in: formData
+          description: 密码
+          type: string
+          required: true
+        - name: grant_type
+          in: formData
+          description: 认证类型
+          type: string
+          required: true
+          default: password
+        - name: scope
+          in: formData
+          description: 参数
+          type: array
+          items:
+            type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Token'
+      security: []
+  /v1/oauth/token/refresh:
+    post:
+      tags:
+        - oauth
+      summary: 刷新认证
+      description: 刷新认证信息
+      operationId: RefreshToken
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: refresh_token
+          in: formData
+          type: string
+          description: 认证token
+          required: true
+        - name: grant_type
+          in: formData
+          description: 认证类型
+          type: string
+          default: refresh_token
+        - name: scope
+          in: formData
+          description: 参数
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Token'
+      security: []
+  '/v1/user/{id}':
+    get:
+      tags:
+        - user
+      summary: 获取用户
+      description: 获取单个用户的详细信息
+      operationId: GetUser
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: 用户ID
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/User'
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - user
+      summary: 编辑用户
+      description: 编辑单个用户信息
+      operationId: UpdateUser
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: 用户ID
+        - in: body
+          name: body
+          description: 用户参数
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/User'
+      security:
+        - OAuth2: [root, admin, user]
+    delete:
+      tags:
+        - user
+      summary: 删除用户
+      description: 删除单个用户
+      operationId: DeleteUser
+      parameters:
+        - in: path
+          name: id
+          type: string
+          required: true
+          description: 用户ID
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/User'
+      security:
+        - OAuth2: [root, admin, user]
+    patch:
+      tags:
+        - user
+      summary: 修改密码
+      description: 管理员重置用户密码
+      operationId: ChangeUserPassword
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: id
+          in: path
+          description: 用户ID
+          type: string
+          required: true
+        - name: username
+          in: formData
+          description: 用户名
+          type: string
+          required: true
+        - name: password
+          in: formData
+          description: 密码
+          type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/user:
+    get:
+      tags:
+        - user
+      summary: 获取登陆用户信息
+      description: 获取当前登陆用户信息
+      operationId: GetUserInfo
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/User'
+      security:
+        - OAuth2: [root, admin, user]
+    post:
+      tags:
+        - user
+      summary: 创建用户
+      description: 创建单个用户
+      operationId: CreateUser
+      parameters:
+        - in: body
+          name: body
+          description: 用户参数
+          schema:
+            allOf:
+              - $ref: '#/definitions/User'
+              - type: object
+                properties:
+                  password:
+                    type: string
+                    description: 密码
+                    pattern: '^[a-zA-Z0-9_\-]{5,16}$'
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/User'
+      security:
+        - OAuth2: [root, admin, user]
+    patch:
+      tags:
+        - user
+      summary: 修改当前用户密码
+      description: 登录用户修改自己的密码
+      operationId: ChangeCurrentUserPassword
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: old_password
+          in: formData
+          description: 原始密码
+          type: string
+          required: true
+        - name: new_password
+          in: formData
+          description: 新密码
+          type: string
+          required: true
+      responses:
+        '200':
+          description: successful operation
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/users:
+    get:
+      tags:
+        - user
+      summary: 获取用户列表
+      description: 获取用户列表
+      operationId: GetUsers
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Users'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/login:
+    post:
+      tags:
+        - user
+      summary: 用户登陆
+      description: 用户登陆
+      operationId: Login
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          in: formData
+          description: 用户名
+          type: string
+          required: true
+        - name: password
+          in: formData
+          description: 密码
+          type: string
+          required: true
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Token'
+      security: []
+  /v1/logout:
+    get:
+      tags:
+        - user
+      summary: 用户登出
+      description: 用户登出
+      operationId: Logout
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices:
+    get:
+      tags:
+        - device
+      summary: 获取设备
+      description: 获取全部设备列表
+      operationId: GetDevices
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Substations'
+      security:
+        - OAuth2: [root, admin, user]
+    post:
+      tags:
+        - device
+      summary: 新增设备
+      description: 新增设备
+      operationId: CreateDevice
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              deviceLevel:
+                description: 设备级别
+                type: integer
+                format: int8
+              stationName:
+                description: 变电站名称
+                type: string
+              testingName:
+                description: 检测设备名称
+                type: string
+              basicsName:
+                description: 设备名称
+                type: string
+              basicsId:
+                description: 基础设备ID
+                type: string
+              threePhase:
+                description: 是否区分相位
+                type: string
+              phase:
+                description: 相位
+                type: string
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - device
+      summary: 修改设备
+      description: 修改设备
+      operationId: UpdateDevice
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              deviceLevel:
+                description: 设备级别
+                type: integer
+                format: int8
+              stationName:
+                description: 变电站名称
+                type: string
+              testingName:
+                description: 检测设备名称
+                type: string
+              basicsName:
+                description: 基础设备名称
+                type: string
+              deviceOldName:
+                description: 修改前名称
+                type: string
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+    delete:
+      tags:
+        - device
+      summary: 删除设备
+      description: 删除设备
+      operationId: DeleteDevice
+      parameters:
+        - name: deviceLevel
+          in: query
+          description: 设备级别
+          type: integer
+          format: int8
+        - name: stationName
+          in: query
+          description: 变电站名称
+          type: string
+        - name: testingName
+          in: query
+          description: 检测设备名称
+          type: string
+        - name: basicsName
+          in: query
+          description: 基础设备名称
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/phase/check:
+    post:
+      tags:
+        - device
+      summary: 检查设备是否区分相位
+      description: 检查设备是否区分相位
+      operationId: CheckBasicsDevicePhase
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              basicsId:
+                description: 基础设备ID
+                type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            required:
+              - threePhase
+            properties:
+              threePhase:
+                description: 是否区分相位
+                type: string
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/basics:
+    get:
+      tags:
+        - device
+      summary: 获取基础设备
+      description: 获取某检测设备下的基础设备列表
+      operationId: GetBasicsDevices
+      parameters:
+        - name: stationName
+          in: query
+          description: 变电站名称
+          type: string
+        - name: testingDeviceName
+          in: query
+          description: 主变设备名称
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/testingDevices'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/testing/similar:
+    get:
+      tags:
+        - device
+      summary: 获取同类检测设备名称列表
+      description: 通过基础设备获取所归属的检测设备的同类检测设备名称列表
+      operationId: GetSimilarTestingDevices
+      parameters:
+        - name: deviceName
+          in: query
+          description: 基础设备名称
+          type: string
+        - name: deviceProfile
+          in: query
+          description: 基础设备类型
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/similarTestingDevices'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/upload:
+    post:
+      tags:
+        - device
+      summary: 上传设备
+      description: 上传设备
+      operationId: UploadDevices
+      parameters:
+        - name: body
+          in: body
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              deviceInfos:
+                type: array
+                items:
+                  $ref: '#/definitions/UploadDeviceInfo'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/templates:
+    get:
+      tags:
+        - template
+      summary: 获取设备模版
+      description: 获取设备模版
+      operationId: GetDeviceTemplateInfos
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/DeviceTemplates'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/templates/fields:
+    get:
+      tags:
+        - template
+      summary: 获取设备属性信息
+      description: 获取设备属性信息
+      operationId: GetDeviceFieldInfos
+      parameters:
+        - name: deviceProfile
+          in: query
+          type: string
+          description: 设备种类名称
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/DeviceFieldInfos'
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - template
+      summary: 修改设备属性信息
+      description: 修改设备属性信息
+      operationId: UpdateDeviceFieldInfo
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  deviceProfileId:
+                    type: string
+                    description: 设备种类ID
+              - $ref: '#/definitions/FieldInfo'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/templates/profiles:
+    put:
+      tags:
+        - template
+      summary: 修改设备种类信息
+      description: 修改设备种类信息
+      operationId: UpdateDeviceProfileInfo
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              deviceProfileId:
+                description: 设备种类ID
+                type: string
+              viewName:
+                description: 设备种类展示名称
+                type: string
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/templates/synchronize:
+    post:
+      tags:
+        - template
+      summary: 同步设备模版信息
+      description: 同步设备模版信息
+      operationId: SynchronizeDeviceTemplateInfo
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/values:
+    get:
+      tags:
+        - data
+      summary: 获取设备属性值列表
+      description: 获取设备属性值列表
+      operationId: GetDeviceValues
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/DeviceValues'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/charts:
+    get:
+      tags:
+        - data
+      summary: 获取设备属性值曲线图
+      description: 获取设备属性值曲线图
+      operationId: GetDeviceCharts
+      parameters:
+        - name: limit
+          in: query
+          type: integer
+          format: int64
+          description: 数据上限
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+        - name: cleaningFlag
+          in: query
+          type: integer
+          format: int64
+          description: 是否数据清洗（是：1，否：0）
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/DeviceChart'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/charts/longitudinal:
+    get:
+      tags:
+        - data
+      summary: 获取纵向比较曲线图
+      description: 获取纵向比较曲线图
+      operationId: GetLongitudinalCharts
+      parameters:
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+        - name: basicDeviceName
+          in: query
+          type: string
+          description: 基础设备名称
+        - name: cycleTime
+          in: query
+          type: integer
+          format: int64
+          description: 周期变化率的周期（毫秒级）
+        - name: cleaningFlag
+          in: query
+          type: integer
+          format: int64
+          description: 是否数据清洗（是：1，否：0）
+        - name: absoluteFlag
+          in: query
+          type: integer
+          format: int64
+          description: 周期变化率是否取绝对值（是：1，否：0）
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/LongitudinalValuesInfo'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/devices/charts/transverse:
+    get:
+      tags:
+        - data
+      summary: 获取横向分析曲线图
+      description: 获取横向分析曲线图
+      operationId: GetTransverseCharts
+      parameters:
+        - name: basicDeviceName
+          in: query
+          type: string
+          description: 基础设备名称
+        - name: deviceType
+          in: query
+          type: string
+          description: 设备类型
+        - name: similarTestingDevices
+          in: query
+          type: array
+          description: 同类检测设备列表
+          items:
+            type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+        - name: cycleTime
+          in: query
+          type: integer
+          format: int64
+          description: 周期变化率的周期
+        - name: cleaningFlag
+          in: query
+          type: integer
+          format: int64
+          description: 是否数据清洗（是：1，否：0）
+        - name: absoluteFlag
+          in: query
+          type: integer
+          format: int64
+          description: 周期变化率是否取绝对值（是：1，否：0）
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/TransverseValuesInfo'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/analysis/aggregate/{operation}:
+    get:
+      tags:
+        - analysis
+      summary: 数据统计
+      description: 数据统计
+      operationId: Aggregate
+      parameters:
+        - name: operation
+          in: path
+          type: string
+          required: true
+          enum:
+            - max
+            - min
+            - avg
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: q
+          in: query
+          type: string
+          description: 搜索条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Values'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/configs/cleaning:
+    get:
+      tags:
+        - config
+      summary: 获取系统配置-数据清洗信息
+      description: 获取系统配置-数据清洗信息
+      operationId: GetCleaningConfigs
+      parameters:
+        - name: deviceProfile
+          in: query
+          description: 设备类型
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/CleaningConfigs'
+      security:
+        - OAuth2: [root, admin, user]
+    post:
+      tags:
+        - config
+      summary: 添加系统配置-数据清洗信息
+      description: 添加系统配置-数据清洗信息
+      operationId: CreateCleaningConfigs
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              deviceProfile:
+                description: 设备类型
+                type: string
+              rule:
+                $ref: '#/definitions/CleaningRules'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - config
+      summary: 修改系统配置-数据清洗信息
+      description: 修改系统配置-数据清洗信息
+      operationId: UpdateCleaningConfigs
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              configId:
+                description: 配置ID
+                type: string
+              rule:
+                $ref: '#/definitions/CleaningRules'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+    delete:
+      tags:
+        - config
+      summary: 删除系统配置-数据清洗信息
+      description: 删除系统配置-数据清洗信息
+      operationId: DeleteCleaningConfigs
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              configId:
+                description: 配置ID
+                type: string
+              ruleId:
+                description: 规则ID
+                type: string
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/configs/cleaning/active:
+    put:
+      tags:
+        - config
+      summary: 修改激活规则与初始值计算周期
+      description: 修改激活规则与初始值计算周期
+      operationId: UpdateCleaningActiveRule
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              configId:
+                description: 配置ID
+                type: string
+              activeRule:
+                description: 激活规则ID
+                type: string
+              initValueCycle:
+                description: 初始值计算周期
+                type: integer
+                format: int64
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/configs/alarms:
+    get:
+      tags:
+        - config
+      summary: 获取解析告警配置信息
+      description: 获取解析告警配置信息
+      operationId: GetAlarmConfigs
+      parameters:
+        - name: deviceProfile
+          in: query
+          description: 设备类型
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/AlarmConfigs'
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - config
+      summary: 修改解析告警配置信息
+      description: 修改解析告警配置信息
+      operationId: UpdateAlarmConfigs
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: 解析告警配置ID
+              cronCycle:
+                type: integer
+                format: int64
+                description: 解析告警周期
+              initCycle:
+                type: integer
+                format: int64
+                description: 初始值计算周期
+              uploadCycle:
+                type: integer
+                format: int64
+                description: 设备上传数据周期
+              minDuration:
+                type: integer
+                format: int64
+                description: 最小持续时间
+              transverseDevices:
+                type: array
+                description: 横向比较设备选择
+                items:
+                  type: string
+              lValDRThreshold:
+                type: string
+                description: 纵比-数值偏差率-阈值
+              lMDThreshold:
+                type: string
+                description: 纵比-均差-阈值
+              lMDDRThreshold:
+                type: string
+                description: 纵比-均差偏差率-阈值
+              lValCRThreshold:
+                type: string
+                description: 纵比-数值变化率-阈值
+              tValDRThreshold:
+                type: string
+                description: 横比-数值偏差率-阈值
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/configs/alarms/task:
+    put:
+      tags:
+        - config
+      summary: 控制解析告警任务
+      description: 控制解析告警任务
+      operationId: ControlAlarmTask
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: 解析告警配置ID
+              operation:
+                type: integer
+                format: int64
+                description: '控制操作（1:开启，0:暂停）'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/configs/alarms/transfer:
+    get:
+      tags:
+        - config
+      summary: 获取传输告警配置信息
+      description: 获取传输告警配置信息
+      operationId: GetTransferAlarmConfig
+      parameters:
+        - name: deviceProfile
+          in: query
+          description: 设备类型
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/TransferAlarmConfig'
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - config
+      summary: 更新传输告警配置信息
+      description: 更新传输告警配置信息
+      operationId: UpdateTransferAlarmConfig
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            $ref: '#/definitions/TransferAlarmConfig'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/configs/alarms/transfer/field:
+    put:
+      tags:
+        - config
+      summary: 修改传输告警属性配置信息
+      description: 修改传输告警属性配置信息
+      operationId: ModifyTransferAlarmConfig
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            $ref: '#/definitions/TransferAlarmConfig'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/logs:
+    get:
+      tags:
+        - logr
+      summary: 获取日志日志信息
+      description: 获取日志信息
+      operationId: GetLogs
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Logs'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/devices:
+    get:
+      tags:
+        - alarm
+      summary: 获取设备告警列表
+      description: 获取设备告警列表
+      operationId: GetDeviceAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/DeviceAlarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/intelligence:
+    get:
+      tags:
+        - alarm
+      summary: 获取智能告警列表
+      description: 获取智能告警列表
+      operationId: GetIntelligenceAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/IntelligenceAlarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/intelligence/confirm:
+    put:
+      tags:
+        - alarm
+      summary: 确认智能告警
+      description: 确认智能告警
+      operationId: ConfirmIntelligenceAlarm
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: 智能告警ID
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/limit/config:
+    get:
+      tags:
+        - alarm
+      summary: 获取超限告警配置
+      description: 获取超限告警配置
+      operationId: GetLimitAlarmConfig
+      parameters:
+        - name: deviceName
+          in: query
+          description: 设备类型
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/LimitAlarmConfig'
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - alarm
+      summary: 更新超限告警配置
+      description: 更新超限告警配置
+      operationId: UpdateLimitAlarmConfig
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            $ref: '#/definitions/LimitAlarmConfig'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/limit/config/field:
+    put:
+      tags:
+        - alarm
+      summary: 修改超限告警配置
+      description: 修改超限告警配置
+      operationId: ModifyLimitAlarmConfig
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            $ref: '#/definitions/LimitAlarmConfig'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/limit:
+    get:
+      tags:
+        - alarm
+      summary: 获取超限告警列表
+      description: 获取超限告警列表
+      operationId: GetLimitAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Alarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/limit/history:
+    get:
+      tags:
+        - alarm
+      summary: 获取历史超限告警列表
+      description: 获取历史超限告警列表
+      operationId: GetHistoryLimitAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Alarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/limit/confirm:
+    put:
+      tags:
+        - alarm
+      summary: 确认超限告警
+      description: 确认超限告警
+      operationId: ConfirmLimitAlarm
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: 超限告警ID
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/transfer:
+    get:
+      tags:
+        - alarm
+      summary: 获取传输告警列表
+      description: 获取传输告警列表
+      operationId: GetTransferAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Alarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/transfer/history:
+    get:
+      tags:
+        - alarm
+      summary: 获取历史传输告警列表
+      description: 获取历史传输告警列表
+      operationId: GetHistoryTransferAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/Alarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/transfer/confirm:
+    put:
+      tags:
+        - alarm
+      summary: 确认传输告警
+      description: 确认传输告警
+      operationId: ConfirmTransferAlarm
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: 传输告警ID
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/dga/receive:
+    post:
+      tags:
+        - dga
+      summary: 接受设备数据(油中溶解)
+      description: 接受油中溶解设备数据
+      operationId: ReceiveData
+      parameters:
+        - name: body
+          in: body
+          description: 消息内容
+          schema:
+            type: object
+          required: true
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/dga/early/config:
+    get:
+      tags:
+        - dga
+      summary: 获取油中溶解预警配置
+      description: 获取油中溶解预警配置
+      operationId: GetEarlyAlarmConfig
+      parameters:
+        - name: deviceType
+          in: query
+          description: 设备类型
+          type: string
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/EarlyAlarmConfig'
+      security:
+        - OAuth2: [root, admin, user]
+    put:
+      tags:
+        - dga
+      summary: 修改油中溶解预警配置
+      description: 修改油中溶解预警配置
+      operationId: UpdateEarlyAlarmConfig
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            $ref: '#/definitions/EarlyAlarmConfig'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/dga/early/config/field:
+    put:
+      tags:
+        - dga
+      summary: 修改油中溶解预告警配置
+      description: 修改超限告警配置
+      operationId: ModifyEarlyAlarmConfig
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            $ref: '#/definitions/EarlyAlarmConfig'
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/early:
+    get:
+      tags:
+        - dga
+      summary: 获取油中溶解预警列表
+      description: 获取油中溶解预警列表
+      operationId: GetEarlyAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/EarlyAlarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/early/confirm:
+    put:
+      tags:
+        - dga
+      summary: 确认获取油中溶解预警
+      description: 确认获取油中溶解预警
+      operationId: ConfirmEarlyAlarm
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: 请求参数
+          schema:
+            type: object
+            properties:
+              uuid:
+                type: string
+                description: 超限告警ID
+      responses:
+        '200':
+          description: A successful response.
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/alarms/early/history:
+    get:
+      tags:
+        - dga
+      summary: 获取油中溶解预警列表
+      description: 获取油中溶解预警列表
+      operationId: GetEarlyHistoryAlarms
+      parameters:
+        - name: limit
+          in: query
+          description: 每页列表的项目数
+          type: integer
+          format: int64
+        - name: skip
+          in: query
+          description: 跳过列表的项目数
+          type: integer
+          format: int64
+        - name: sort
+          in: query
+          description: 排序
+          type: string
+        - name: q
+          in: query
+          type: string
+          description: 搜索列表条件
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/EarlyAlarms'
+      security:
+        - OAuth2: [root, admin, user]
+  /v1/file/download:
+    get:
+      tags:
+        - file
+      summary: 获取文件
+      description: 获取文件
+      operationId: DownloadFile
+      produces:
+        - application/octet-stream
+      parameters:
+        - name: q
+          in: query
+          type: string
+          description: 搜索条件
+      responses:
+        200:
+          description: A successful response.
+          headers:
+            Content-Disposition:
+              type: string
+              description: download file.
+          schema:
+            type: file
+      security: []
+  /v1/ping:
+    get:
+      tags:
+        - system
+      summary: 健康检查
+      description: 健康检查
+      operationId: Ping
+      responses:
+        '200':
+          description: A successful response.
+      security: []
+  /v1/config:
+    get:
+      tags:
+        - system
+      summary: Config Resource
+      description: Fetch the current state of the service's configuration.
+      operationId: Config
+      responses:
+        '200':
+          description: A successful response.
+      security: []
+  /version:
+    get:
+      tags:
+        - system
+      summary: API Version
+      description: Get the API version
+      operationId: Version
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              version:
+                type: string
+      security: []
+
+definitions:
+  DeviceAlarms:
+    type: object
+    description: 通知信息列表
+    required:
+      - total_count
+    properties:
+      total_count:
+        type: integer
+        description: 通知信息列表总数
+        format: int64
+      items:
+        type: array
+        description: 通知信息列表
+        items:
+          $ref: '#/definitions/DeviceAlarm'
+  DeviceAlarm:
+    type: object
+    description: 通知信息
+    required:
+      - uuid
+      - created
+      - modified
+      - slug
+      - sender
+      - category
+      - severity
+      - content
+      - description
+      - status
+    properties:
+      uuid:
+        type: string
+        description: 唯一编码
+      created:
+        type: integer
+        format: int64
+        description: 创建时间(timestamp)
+      modified:
+        type: integer
+        format: int64
+        description: 更新时间(timestamp)
+      slug:
+        type: string
+        description: 产生原因
+      sender:
+        type: string
+        description: 发送者
+      category:
+        type: string
+        description: 分类
+        enum:
+          - SECURITY
+          - HW_HEALTH
+          - SW_HEALTH
+      severity:
+        type: string
+        enum:
+          - CRITICAL
+          - NORMAL
+      content:
+        type: string
+        description: 内容
+      description:
+        type: string
+        description: 描述
+      status:
+        type: string
+        enum:
+          - NEW
+          - PROCESSED
+          - ESCALATED
+      labels:
+        type: array
+        items:
+          type: string
+  IntelligenceAlarms:
+    type: object
+    description: 智能告警列表
+    required:
+      - total_count
+    properties:
+      total_count:
+        type: integer
+        description: 智能告警列表总数
+        format: int64
+      items:
+        type: array
+        description: 智能告警列表
+        items:
+          $ref: '#/definitions/IntelligenceAlarm'
+  IntelligenceAlarm:
+    type: object
+    description: 智能告警信息
+    required:
+      - uuid
+      - startTime
+      - endTime
+      - stationName
+      - deviceProfile
+      - testingDeviceName
+      - basicsDeviceName
+      - severity
+      - description
+      - confirmStatus
+      - confirmUser
+    properties:
+      uuid:
+        type: string
+        description: 唯一编码
+      startTime:
+        type: integer
+        format: int64
+        description: 告警开始时间
+      endTime:
+        type: integer
+        format: int64
+        description: 告警结束时间
+      stationName:
+        type: string
+        description: 变电站名称
+      deviceProfile:
+        type: string
+        description: 设备类型
+      testingDeviceName:
+        type: string
+        description: 检测设备名称
+      basicsDeviceName:
+        type: string
+        description: 基础设备名称
+      severity:
+        type: string
+        enum:
+          - CRITICAL
+          - NORMAL
+        description: 告警级别
+      description:
+        type: string
+        description: 告警描述
+      confirmStatus:
+        type: integer
+        format: int64
+        description: '确认状态(1:已确认，0:未确认)'
+      confirmUser:
+        type: string
+        description: 确认人
+  EarlyAlarms:
+    type: object
+    description: 油中溶解设备预警列表
+    required:
+      - total_count
+    properties:
+      total_count:
+        type: integer
+        description: 油中溶解设备预警列表 总数
+        format: int64
+      items:
+        type: array
+        description: 油中溶解设备预警列表
+        items:
+          $ref: '#/definitions/EarlyAlarm'
+  EarlyAlarm:
+    type: object
+    description: 超限告警信息
+    required:
+      - uuid
+      - startTime
+      - endTime
+      - stationName
+      - deviceProfile
+      - testingDeviceName
+      - basicsDeviceName
+      - viewName
+      - severity
+      - description
+      - confirmStatus
+      - confirmUser
+    properties:
+      uuid:
+        type: string
+        description: 唯一编码
+      startTime:
+        type: integer
+        format: int64
+        description: 开始告警时间
+      endTime:
+        type: integer
+        format: int64
+        description: 结束告警时间
+      stationName:
+        type: string
+        description: 变电站名称
+      deviceProfile:
+        type: string
+        description: 设备类型
+      profileName:
+        type: string
+        description: 设备类型
+      testingDeviceName:
+        type: string
+        description: 检测设备名称
+      basicsDeviceName:
+        type: string
+        description: 基础设备名称
+      fieldName:
+        type: string
+        description: 属性名称
+      viewName:
+        type: string
+        description: 属性展示名称
+      severity:
+        type: string
+        enum:
+          - CRITICAL
+          - NORMAL
+        description: 告警级别
+      description:
+        type: string
+        description: 告警描述
+      confirmStatus:
+        type: integer
+        format: int64
+        description: '确认状态(1:已确认，0:未确认)'
+      confirmUser:
+        type: string
+        description: 确认人
+  Alarms:
+    type: object
+    description: 告警列表
+    properties:
+      total_count:
+        type: integer
+        description: 告警列表总数
+        format: int64
+        x-omitempty: false
+      items:
+        type: array
+        description: 告警列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/Alarm'
+  Alarm:
+    type: object
+    description: 传输告警信息
+    properties:
+      uuid:
+        type: string
+        description: 唯一编码
+        x-omitempty: false
+      deviceName:
+        type: string
+        description: 设备名
+        x-omitempty: false
+      stationName:
+        type: string
+        description: 变电站名称
+        x-omitempty: false
+      testingDeviceName:
+        type: string
+        description: 一次设备名称
+        x-omitempty: false
+      basicsDeviceName:
+        type: string
+        description: 设备可视化名称
+        x-omitempty: false
+      startTime:
+        type: integer
+        format: int64
+        description: 告警开始时间
+        x-omitempty: false
+      endTime:
+        type: integer
+        format: int64
+        description: 告警结束时间
+        x-omitempty: false
+      severity:
+        type: string
+        enum:
+          - CRITICAL
+          - NORMAL
+        description: 告警级别
+        x-omitempty: false
+      deviceProfile:
+        type: string
+        description: 设备类型
+        x-omitempty: false
+      profileName:
+        type: string
+        description: 设备类型可视化名称
+        x-omitempty: false
+      fieldName:
+        type: string
+        description: 设备属性
+        x-omitempty: false
+      viewName:
+        type: string
+        description: 属性可视化名称
+        x-omitempty: false
+      description:
+        type: string
+        description: 告警描述
+        x-omitempty: false
+      confirmStatus:
+        type: integer
+        format: int64
+        enum:
+          - 0
+          - 1
+        description: '确认状态(1:已确认，0:未确认)'
+        x-omitempty: false
+      confirmUser:
+        type: string
+        description: 确认人
+        x-omitempty: false
+  CleaningConfigs:
+    type: object
+    description: 数据清洗配置
+    required:
+      - uuid
+      - deviceProfile
+      - configStatus
+      - initValueCycle
+      - activeRule
+      - threePhase
+    properties:
+      uuid:
+        type: string
+        description: 数据清洗配置ID
+      deviceProfile:
+        type: string
+        description: 设备类型
+      configStatus:
+        type: integer
+        format: int64
+        description: '配置状态（1:已生效，0:未生效）'
+      initValueCycle:
+        type: integer
+        format: int64
+        description: 初始值计算周期
+      activeRule:
+        type: string
+        description: 激活规则ID
+      threePhase:
+        type: string
+        description: 是否区分相位
+      rules:
+        type: array
+        description: 规则列表
+        items:
+          $ref: '#/definitions/CleaningRules'
+  CleaningRules:
+    type: object
+    description: 数据清洗配置规则信息
+    required:
+      - uuid
+      - ruleName
+    properties:
+      uuid:
+        type: string
+        description: 规则ID
+      ruleName:
+        type: string
+        description: 规则名称
+      singleRules:
+        type: array
+        description: 规则列表
+        items:
+          $ref: '#/definitions/SingleRule'
+  SingleRule:
+    type: object
+    description: 数据清洗配置单相位规则信息
+    required:
+      - fieldName
+      - operator
+      - value
+      - phase
+    properties:
+      fieldName:
+        type: string
+        description: 属性名称
+      operator:
+        type: string
+        description: 操作符
+      value:
+        type: string
+        description: 值
+      phase:
+        type: string
+        description: 相位
+  AlarmConfigs:
+    type: object
+    description: 解析告警配置
+    required:
+      - uuid
+      - deviceProfile
+      - configStatus
+      - taskStatus
+      - cronCycle
+      - initCycle
+      - uploadCycle
+      - minDuration
+      - transverseDevices
+      - lValDRThreshold
+      - lMDThreshold
+      - lMDDRThreshold
+      - lValCRThreshold
+      - tValDRThreshold
+    properties:
+      uuid:
+        type: string
+        description: 解析告警配置ID
+      deviceProfile:
+        type: string
+        description: 设备类型
+      configStatus:
+        type: integer
+        format: int64
+        description: '配置状态（1:已生效，0:未生效）'
+      taskStatus:
+        type: integer
+        format: int64
+        description: '任务状态（1:启动中，0:暂停中）'
+      cronCycle:
+        type: integer
+        format: int64
+        description: 解析告警周期
+      initCycle:
+        type: integer
+        format: int64
+        description: 初始值计算周期
+      uploadCycle:
+        type: integer
+        format: int64
+        description: 设备上传数据周期
+      minDuration:
+        type: integer
+        format: int64
+        description: 最小持续时间
+      transverseDevices:
+        type: array
+        description: 横向比较设备选择
+        items:
+          type: string
+      lValDRThreshold:
+        type: string
+        description: 纵比-数值偏差率-阈值
+      lMDThreshold:
+        type: string
+        description: 纵比-均差-阈值
+      lMDDRThreshold:
+        type: string
+        description: 纵比-均差偏差率-阈值
+      lValCRThreshold:
+        type: string
+        description: 纵比-数值变化率-阈值
+      tValDRThreshold:
+        type: string
+        description: 横比-数值偏差率-阈值
+  TransferAlarmConfig:
+    type: object
+    description: 传输告警配置
+    properties:
+      uuid:
+        type: string
+        description: 传输告警配置ID
+        x-omitempty: false
+      deviceProfile:
+        type: string
+        description: 设备类型
+        x-omitempty: false
+      fieldTransfers:
+        type: array
+        description: 属性传输告警配置列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/FieldTransfer'
+  FieldTransfer:
+    type: object
+    description: 传输告警属性配置
+    properties:
+      fieldName:
+        type: string
+        description: 属性名称
+        x-omitempty: false
+      duration:
+        type: integer
+        description: 持续周期
+        format: int64
+        x-omitempty: false
+  EarlyAlarmConfig:
+    type: object
+    description: 设备超限告警配置
+    properties:
+      uuid:
+        type: string
+        description: 配置ID
+        x-omitempty: false
+      deviceType:
+        type: string
+        description: 设备名称
+        x-omitempty: false
+      cycle:
+        type: integer
+        description: 数值周期
+        format: int64
+        x-omitempty: false
+      fieldLimits:
+        type: array
+        description: 属性超限配置列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/EarlyAlarmFieldLimit'
+  EarlyAlarmFieldLimit:
+    type: object
+    description: 属性超限配置
+    properties:
+      fieldName:
+        type: string
+        description: 属性名称
+        x-omitempty: false
+      maxLimit:
+        type: string
+        description: 上限
+        x-omitempty: false
+      minLimit:
+        type: string
+        description: 下限
+        x-omitempty: false
+
+  LimitAlarmConfig:
+    type: object
+    description: 设备超限告警配置
+    properties:
+      uuid:
+        type: string
+        description: 配置ID
+        x-omitempty: false
+      deviceName:
+        type: string
+        description: 设备名称
+        x-omitempty: false
+      type:
+        type: string
+        description: 超限告警类型Default(默认告警)、MovingAvg(移动平均值告警)、CycleAvg(周期平均值告警)
+        x-omitempty: false
+        enum:
+          - Default
+          - MovingAvg
+          - CycleAvg
+      cycle:
+        type: integer
+        description: 数值周期
+        format: int64
+        x-omitempty: false
+      fieldLimits:
+        type: array
+        description: 属性超限配置列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/FieldLimit'
+  FieldLimit:
+    type: object
+    description: 属性超限配置
+    properties:
+      fieldName:
+        type: string
+        description: 属性名称
+        x-omitempty: false
+      maxLimit:
+        type: string
+        description: 上限
+        x-omitempty: false
+      minLimit:
+        type: string
+        description: 下限
+        x-omitempty: false
+  Logs:
+    type: object
+    description: 日志信息列表
+    required:
+      - total_count
+    properties:
+      total_count:
+        type: integer
+        description: 日志信息列表总数
+        format: int64
+      items:
+        type: array
+        description: 日志信息列表
+        items:
+          $ref: '#/definitions/Log'
+  UploadDeviceInfo:
+    type: object
+    description: 上传设备信息
+    properties:
+      stationName:
+        description: 变电站名称
+        type: string
+      testingName:
+        description: 检测设备名称
+        type: string
+      basicsName:
+        description: 设备名称
+        type: string
+      basicsId:
+        description: 基础设备ID
+        type: string
+      threePhase:
+        description: 是否区分相位
+        type: string
+      phase:
+        description: 相位
+        type: string
+  Log:
+    type: object
+    description: 日志信息
+    required:
+      - level
+      - origin_service
+      - message
+      - created
+    properties:
+      level:
+        type: string
+        description: 日志级别
+        enum:
+          - ERROR
+          - INFO
+          - DEBUG
+          - WARN
+          - TRACE
+      args:
+        type: array
+        description: 参数列表
+        items:
+          type: string
+      origin_service:
+        type: string
+        description: 服务名
+      message:
+        type: string
+        description: 日志信息
+      created:
+        type: integer
+        format: int64
+        description: 创建时间
+  DeviceTemplates:
+    type: object
+    description: 设备模版列表
+    required:
+      - total_count
+    properties:
+      total_count:
+        type: integer
+        description: 设备属性值列表总数
+        format: int64
+      deviceTemplates:
+        type: array
+        description: 参数列表
+        items:
+          $ref: '#/definitions/DeviceTemplate'
+  DeviceTemplate:
+    type: object
+    description: 设备模版信息
+    required:
+      - uuid
+      - deviceProfile
+      - profileName
+    properties:
+      uuid:
+        type: string
+        description: 模版ID
+      deviceProfile:
+        type: string
+        description: 设备类型名称
+      profileName:
+        type: string
+        description: 设备类型展示名称
+      fieldInfos:
+        type: array
+        description: 属性信息列表
+        items:
+          $ref: '#/definitions/FieldInfo'
+  FieldInfo:
+    type: object
+    description: 设备属性信息
+    required:
+      - fieldName
+      - viewName
+      - unit
+      - show
+    properties:
+      fieldName:
+        type: string
+        description: 属性名称
+      viewName:
+        type: string
+        description: 属性展示名称
+      unit:
+        type: string
+        description: 属性单位
+      show:
+        type: boolean
+        description: 属性是否显示
+  DeviceValues:
+    type: object
+    description: 设备属性值列表
+    properties:
+      total_count:
+        type: integer
+        description: 设备属性值列表总数
+        format: int64
+        x-omitempty: false
+      items:
+        type: array
+        description: 设备属性值列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/DeviceInfo'
+  DeviceChart:
+    type: object
+    description: 设备属性值曲线图
+    properties:
+      items:
+        type: array
+        description: 设备属性值列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/DeviceChartInfo'
+      init:
+        type: string
+        description: 数据清洗时初期值
+        x-omitempty: false
+  LongitudinalValuesInfo:
+    type: object
+    description: 设备纵向比较曲线图
+    required:
+      - fieldName
+      - fieldUnit
+    properties:
+      fieldName:
+        type: string
+        description: 属性名称
+      fieldUnit:
+        type: string
+        description: 属性单位
+      numericalValueItems:
+        type: array
+        description: 纵向比较数值列表
+        items:
+          $ref: '#/definitions/LongitudinalValues'
+      averageDeviationItems:
+        type: array
+        description: 纵向比较均差列表
+        items:
+          $ref: '#/definitions/LongitudinalValues'
+      changeRateItems:
+        type: array
+        description: 纵向比较变化率列表
+        items:
+          $ref: '#/definitions/LongitudinalValues'
+      intelligenceAlarmItems:
+        type: array
+        description: 智能告警列表
+        items:
+          $ref: '#/definitions/LongitudinalIntelAlarmInfo'
+  LongitudinalValues:
+    type: object
+    description: 纵向比较数值信息
+    required:
+      - deviceType
+    properties:
+      deviceType:
+        type: string
+        description: 设备类型(A项、B项、C项)
+      valueItems:
+        $ref: '#/definitions/ValueItem'
+  LongitudinalIntelAlarmInfo:
+    type: object
+    description: 智能告警信息
+    required:
+      - deviceType
+    properties:
+      deviceType:
+        type: string
+        description: 设备类型(A项、B项、C项)
+      alarmItems:
+        type: array
+        description: 某相智能告警信息列表
+        items:
+          $ref: '#/definitions/AlarmSimpleInfo'
+  AlarmSimpleInfo:
+    type: object
+    description: 智能告警简略信息（用于纵横比跳转）
+    required:
+      - alarmTime
+      - alarmSeverity
+      - alarmDescription
+    properties:
+      alarmTime:
+        type: integer
+        description: 告警时间
+      alarmSeverity:
+        type: string
+        enum:
+          - CRITICAL
+          - NORMAL
+        description: 告警级别
+      alarmDescription:
+        type: string
+        description: 告警描述
+  TransverseValuesInfo:
+    type: object
+    description: 设备横向分析曲线图
+    required:
+      - deviceType
+      - fieldName
+      - fieldUnit
+    properties:
+      deviceType:
+        type: string
+        description: 设备类型(A项、B项、C项)
+      fieldName:
+        type: string
+        description: 属性名称
+      fieldUnit:
+        type: string
+        description: 属性单位
+      numericalValueItems:
+        type: array
+        description: 横向分析数值列表
+        items:
+          $ref: '#/definitions/TransverseValues'
+      averageDeviationItems:
+        type: array
+        description: 横向分析均差列表
+        items:
+          $ref: '#/definitions/TransverseValues'
+      changeRateItems:
+        type: array
+        description: 横向分析变化率列表
+        items:
+          $ref: '#/definitions/TransverseValues'
+      intelligenceAlarmItems:
+        type: array
+        description: 智能告警列表
+        items:
+          $ref: '#/definitions/TransverseIntelAlarmInfo'
+  TransverseValues:
+    type: object
+    description: 横向分析数值信息
+    required:
+      - testingDeviceName
+    properties:
+      testingDeviceName:
+        type: string
+        description: 检测设备名称
+      valueItems:
+        $ref: '#/definitions/ValueItem'
+  TransverseIntelAlarmInfo:
+    type: object
+    description: 智能告警信息
+    required:
+      - testingDeviceName
+    properties:
+      testingDeviceName:
+        type: string
+        description: 检测设备名称
+      alarmItems:
+        type: array
+        description: 智能告警信息列表
+        items:
+          $ref: '#/definitions/AlarmSimpleInfo'
+  ValueItem:
+    type: object
+    description: 属性值列表
+    properties:
+      times:
+        type: array
+        description: 创建时间(timestamp)
+        items:
+          type: integer
+          format: int64
+      values:
+        type: array
+        description: 数值列表
+        items:
+          type: string
+  DeviceChartInfo:
+    type: object
+    description: 设备属性值列表
+    properties:
+      time:
+        type: integer
+        description: 创建时间(timestamp)
+        format: int64
+        x-omitempty: false
+      value:
+        type: string
+        description: 设备属性值
+        x-omitempty: false
+  DeviceInfo:
+    type: object
+    description: 设备属性值列表
+    properties:
+      time:
+        type: integer
+        description: 创建时间(timestamp)
+        format: int64
+        x-omitempty: false
+      values:
+        type: array
+        description: 设备属性值列表
+        items:
+          $ref: '#/definitions/Value'
+  DeviceFieldInfos:
+    type: object
+    description: 属性定义列表
+    properties:
+      deviceFieldInfos:
+        type: array
+        description: 属性定义列表
+        items:
+          $ref: '#/definitions/deviceFieldInfo'
+  deviceFieldInfo:
+    type: object
+    description: 属性定义
+    required:
+      - name
+      - viewName
+      - description
+      - unit
+      - show
+      - type
+      - float_encoding
+      - default_value
+      - minimum
+      - maximum
+    properties:
+      name:
+        type: string
+        description: 属性名
+      unit:
+        type: string
+        description: 属性单位
+      type:
+        type: string
+        description: 属性类型
+      viewName:
+        type: string
+        description: 属性名(展示)
+      show:
+        type: boolean
+        description: 属性名是否显示
+      description:
+        type: string
+        description: 描述
+      float_encoding:
+        type: string
+        description: float编码
+      default_value:
+        type: string
+        description: 默认值
+      minimum:
+        type: string
+        description: 最小值
+      maximum:
+        type: string
+        description: 最大值
+  Values:
+    type: object
+    description: 值列表
+    properties:
+      values:
+        type: array
+        description: 值列表
+        x-omitempty: false
+        items:
+          $ref: '#/definitions/Value'
+  Value:
+    type: object
+    description: 值
+    properties:
+      name:
+        type: string
+        description: 属性名称
+        x-omitempty: false
+      value:
+        type: string
+        description: 属性值
+        x-omitempty: false
+      uuid:
+        type: string
+        description: 属性名称
+        x-omitempty: false
+  Substations:
+    type: object
+    description: 变电站列表
+    properties:
+      substations:
+        type: array
+        description: 变电站列表
+        items:
+          $ref: '#/definitions/Substation'
+  Substation:
+    type: object
+    description: 变电站信息
+    required:
+      - name
+      - uuid
+    properties:
+      name:
+        type: string
+        description: 变电站名称
+      uuid:
+        type: string
+        description: 变电站ID
+      testingDevices:
+        type: array
+        description: 检测设备信息
+        items:
+          $ref: '#/definitions/testingDevices'
+  testingDevices:
+    type: object
+    description: 检测设备信息
+    required:
+      - name
+      - uuid
+      - status
+    properties:
+      name:
+        type: string
+        description: 检测设备名称
+      uuid:
+        type: string
+        description: 检测设备ID
+      status:
+        type: integer
+        description: 检测设备状态
+        format: int8
+      basicsDevices:
+        type: array
+        description: 基础设备信息
+        items:
+          $ref: '#/definitions/basicsDevices'
+  similarTestingDevices:
+    type: object
+    description: 同类检测设备名称列表
+    required:
+      - currentTestingDevice
+    properties:
+      similarTestingDevices:
+        type: array
+        description: 基础设备信息
+        items:
+          type: string
+      currentTestingDevice:
+        type: string
+        description: 当前选择的检测设备名称
+  basicsDevices:
+    type: object
+    description: 基础设备信息
+    required:
+      - name
+      - uuid
+      - deviceName
+      - deviceProfile
+      - phase
+      - status
+    properties:
+      name:
+        type: string
+        description: 基础设备展示名称
+      uuid:
+        type: string
+        description: 基础设备ID
+      deviceName:
+        type: string
+        description: 基础设备名称
+      deviceProfile:
+        type: string
+        description: 基础设备类型
+      phase:
+        type: string
+        description: 基础设备相位
+      status:
+        type: integer
+        description: 基础设备状态
+        format: int8
+  Users:
+    type: object
+    description: 用户列表
+    required:
+      - total_count
+    properties:
+      total_count:
+        type: integer
+        description: 用户列表总数
+        format: int64
+      items:
+        type: array
+        description: 用户列表
+        items:
+          $ref: '#/definitions/User'
+  User:
+    type: object
+    description: 用户信息
+    required:
+      - id
+      - name
+      - email
+      - telephone
+      - role
+      - created
+      - modified
+    properties:
+      id:
+        type: string
+        description: 用户ID(唯一)
+      name:
+        type: string
+        description: 用户名称
+        pattern: '^[a-zA-Z0-9_]{5,16}$'
+      email:
+        type: string
+        description: 用户邮箱
+      telephone:
+        type: string
+        description: 用户手机号码
+      role:
+        type: string
+        description: 用户角色列表
+        enum:
+          - user
+          - admin
+          - root
+      created:
+        type: integer
+        format: int64
+        description: 创建时间(timestamp)
+      modified:
+        type: integer
+        format: int64
+        description: 更新时间(timestamp)
+  Token:
+    type: object
+    properties:
+      access_token:
+        type: string
+        description: jwt token
+      token_type:
+        type: string
+        description: token的类型
+        default: Bearer
+      expires_in:
+        type: string
+        description: token过期时间(秒)
+      expires_at:
+        type: string
+        description: token过期时间(timestamp)
+  Principal:
+    type: object
+    description: OAuth2鉴权信息
+    properties:
+      id:
+        description: 用户ID(唯一)
+        type: string
+      name:
+        description: 用户名(唯一)
+        type: string
+        pattern: '^[_-a-zA-Z0-9]{5,16}$'
+      role:
+        type: string
+        description: 角色

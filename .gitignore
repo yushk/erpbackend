@@ -1,0 +1,8 @@
+/.GOPATH
+/bin
+/certs
+/manager/client/certs
+.vscode
+.idea
+logs/
+/.config.mk
